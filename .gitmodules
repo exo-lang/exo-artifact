@@ -1,0 +1,3 @@
+[submodule "exo"]
+	path = exo
+	url = git@github.com:ChezJrk/exo.git

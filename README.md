@@ -3,6 +3,60 @@
 Here follow instructions for running our artifact and validating the claims made in the
 paper.
 
+## Artifact layout
+
+In the `/app` directory of the artifact, you will find the following contents:
+
+1. `Dockerfile` - the Dockerfile used to create the present image
+2. `README.md` - this README document
+3. `evaluate.sh` - the entry point for running our x86
+
+## Artifact evaluation
+
+### Running the evaluation script
+
+From inside the Docker container, simply run:
+
+```
+$ ./evaluate.sh
+```
+
+We encourage reviewers to glance at the script. It will simply compile and run our x86
+benchmarks and baselines. For SGEMM, the baselines are OpenBLAS and MKL. For CONV, the
+baselines are Halide and Intel DNNL. As in the paper, both benchmarks are run on a
+single core.
+
+It will also produce matplotlib versions of the plots found in the paper and leave them
+in sgemm.png and conv.png, respectively.
+
+If, while running the evaluation script, you see the message
+
+```
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+```
+
+Then on your _host_ system (rather than in the Docker image) you will need to disable
+CPU scaling. On Linux systems, this may be accomplished by changing the CPU frequency
+governor to `performance`. If you have the `cpupower` utility installed, the following
+command should suffice.
+
+```
+$ cpupower frequency-set --governor performance
+```
+
+If you do not have `cpupower` installed on your host system, then please consult your
+distribution's package archives for this utility. On Ubuntu systems, it is provided by
+the package `linux-tools-common`.
+
+### Running exo's unit tests
+
+If you would like to run exo's unit tests, follow these steps...
+
+### Running the GEMMINI tests
+
+Unfortunately, we are not able to provide reproduction scripts for our GEMMINI timings
+because they require access to prototype hardware. However, you can do this instead...
+
 ## Installing locally
 
 If instead of using the Docker image, you wish to run the script on your local machine,
@@ -32,8 +86,8 @@ This guide assumes you are running Ubuntu 20.04 LTS.
 
 ### Make sure you cloned everything
 
-This repository and exo both use submodules for dependencies. Make sure those
-are pulled and up to date:
+This repository and exo both use submodules for dependencies. Make sure those are pulled
+and up to date:
 
 ```
 $ git submodule update --init --recursive

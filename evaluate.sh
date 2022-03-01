@@ -13,7 +13,7 @@ export MKL_NUM_THREADS=$num_threads
 export HL_NUM_THREADS=$num_threads
 export OMP_NUM_THREADS=$num_threads
 
-source /opt/venv
+source /opt/venv/bin/activate
 
 ## Build apps
 

@@ -29,6 +29,12 @@ single core.
 It will also produce matplotlib versions of the plots found in the paper and leave them
 in sgemm.png and conv.png, respectively.
 
+The evaluation script should not take an especially long time to run. In our test
+environment, which uses an Intel i9-7900X CPU, it completes in under 3 minutes.
+
+Note that our implementation requires the use of AVX-512 instructions. If your CPU does
+not support these instructions, then... (TODO)
+
 If, while running the evaluation script, you see the message
 
 ```
@@ -50,12 +56,13 @@ the package `linux-tools-common`.
 
 ### Running exo's unit tests
 
-If you would like to run exo's unit tests, follow these steps...
+If you would like to run exo's unit tests, follow these steps... (TODO)
 
 ### Running the GEMMINI tests
 
 Unfortunately, we are not able to provide reproduction scripts for our GEMMINI timings
 because they require access to prototype hardware. However, you can do this instead...
+(TODO)
 
 ## Installing locally
 

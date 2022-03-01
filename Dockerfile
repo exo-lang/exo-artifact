@@ -18,10 +18,17 @@ RUN apt-get update &&  \
       clang-13 \
       clang++-13 \
       cmake \
-      intel-hpckit \
+      ninja-build \
+      intel-oneapi-dnnl-devel \
+      intel-oneapi-mkl-devel \
+      libopenblas-dev \
+      libpng-dev \
+      libjpeg-dev \
+      pkg-config \
     && \
-    python3.9 -m pip install -U setuptools pip wheel && \
-    python3.9 -m pip install -U build
+    wget https://github.com/halide/Halide/releases/download/v13.0.4/Halide-13.0.4-x86-64-linux-3a92a3f95b86b7babeed7403a330334758e1d644.tar.gz && \
+    tar xvf Halide*.tar.gz --strip-components=1 -C /usr/local && \
+    rm Halide*.tar.gz
 
 # Set application directory and environment variables for evaluation
 WORKDIR /app
@@ -31,7 +38,11 @@ ENV CXX=clang++-13
 ## Copy local files into image
 COPY . .
 
-## Build and install exo-lang
-RUN cd exo && \
-    python3.9 -m build --sdist --wheel --outdir dist/ . && \
-    python3.9 -m pip install dist/*.whl
+## Build and install virtual environment for Exo
+RUN python3.9 -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    python -m pip install -U setuptools pip wheel && \
+    python -m pip install -U build && \
+    cd exo && \
+    python -m build --sdist --wheel --outdir dist/ . && \
+    python -m pip install dist/*.whl

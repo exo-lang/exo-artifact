@@ -16,6 +16,20 @@ export OMP_NUM_THREADS=$num_threads
 # Don't load the Docker virtual environment if one is already loaded.
 [ -z "$VIRTUAL_ENV" ] && source /opt/venv/bin/activate
 
+## Detect AVX-512 on host
+if grep avx512 /proc/cpuinfo >/dev/null; then
+  SDE=""
+else
+  echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
+  echo "*                                                                           *"
+  echo "*               Your CPU does not appear to support AVX512                  *"
+  echo "*     Benchmarks will run under SDE. See README.md for more information     *"
+  echo "*                                                                           *"
+  echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
+  echo
+  SDE="sde64 -skx -env OPENBLAS_CORETYPE SkylakeX -- "
+fi
+
 ## Build apps
 
 cmake -G Ninja -S "${ROOT_DIR}/exo/apps" -B build \
@@ -30,12 +44,15 @@ cmake --build build
 
 ## Run benchmarks
 
-./build/x86_demo/sgemm/bench_sgemm --benchmark_filter=exo --benchmark_out=sgemm-exo.json
-./build/x86_demo/sgemm/bench_sgemm --benchmark_filter=MKL --benchmark_out=sgemm-mkl.json
-./build/x86_demo/sgemm/bench_sgemm_openblas \
+$SDE ./build/x86_demo/sgemm/bench_sgemm \
+  --benchmark_filter=exo --benchmark_out=sgemm-exo.json
+$SDE ./build/x86_demo/sgemm/bench_sgemm \
+  --benchmark_filter=MKL --benchmark_out=sgemm-mkl.json
+$SDE ./build/x86_demo/sgemm/bench_sgemm_openblas \
   --benchmark_filter=OpenBLAS --benchmark_out=sgemm-openblas.json
 
-./build/x86_demo/conv/bench_conv --benchmark_filter=102 --benchmark_out=conv.json
+$SDE ./build/x86_demo/conv/bench_conv \
+  --benchmark_filter=102 --benchmark_out=conv.json
 
 ## Create graphs
 

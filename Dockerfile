@@ -38,6 +38,14 @@ RUN wget -q https://github.com/halide/Halide/releases/download/v13.0.4/Halide-13
     tar xvf Halide*.tar.gz -C /usr/local --exclude="Halide-13.0.4-x86-64-linux/share/doc" --strip-components=1 && \
     rm Halide*.tar.gz
 
+## Download and install SDE 9.0.0
+RUN wget -q https://downloadmirror.intel.com/684899/sde-external-9.0.0-2021-11-07-lin.tar.xz && \
+    mkdir -p /opt/sde && \
+    tar xvf sde-external*.tar.xz -C /opt/sde --strip-components=1 && \
+    rm sde-external*.tar.xz
+
+ENV PATH=$PATH:/opt/sde
+
 ## Build virtual environment for Exo
 RUN python3.9 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \

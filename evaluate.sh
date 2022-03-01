@@ -30,6 +30,8 @@ else
   echo -ne "${RED}"
   echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
   echo "*                                                                           *"
+  echo "*                      EXO PLDI 2022 Artifact Warning                       *"
+  echo "*                                                                           *"
   echo "*               Your CPU does not appear to support AVX512                  *"
   echo "*     Benchmarks will run under SDE. See README.md for more information     *"
   echo "*                                                                           *"
@@ -77,6 +79,8 @@ if [ "$HAS_AVX512" -eq 0 ]; then
   echo
   echo -ne "${RED}"
   echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
+  echo "*                                                                           *"
+  echo "*                      EXO PLDI 2022 Artifact Warning                       *"
   echo "*                                                                           *"
   echo "*                Your CPU does not appear to support AVX512                 *"
   echo "*        Benchmarks were run under SDE. Plots will not be accurate.         *"

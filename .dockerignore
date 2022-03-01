@@ -1,5 +1,13 @@
 # IDE files that aren't meant to be distributed.
 .idea/
 
+# Version control databases
+**/.git
+
 # Large data files that aren't used by the evaluation tests.
 ./exo/tests/gemmini/gemmini-rocc-tests
+
+# Files from a local run of evaluate.sh
+*.json
+build/
+*.png

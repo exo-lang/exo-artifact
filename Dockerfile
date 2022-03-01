@@ -30,12 +30,12 @@ RUN apt-get update &&  \
     tar xvf Halide*.tar.gz --strip-components=1 -C /usr/local && \
     rm Halide*.tar.gz
 
-# Set application directory and environment variables for evaluation
-WORKDIR /app
+# Set environment variables for evaluation
 ENV CC=clang-13
 ENV CXX=clang++-13
 
 ## Copy local files into image
+WORKDIR /app
 COPY . .
 
 ## Build and install virtual environment for Exo
@@ -48,6 +48,8 @@ RUN python3.9 -m venv /opt/venv && \
     python -m pip install dist/*.whl && \
     rm -rf build dist && \
     cd - && \
+    python -m pip install -r requirements.txt && \
+    rm -rf /root/.cache && \
     cmake -G Ninja -S exo/dependencies/benchmark -B build \
       -DCMAKE_BUILD_TYPE=Release \
       -DBENCHMARK_ENABLE_TESTING=NO \

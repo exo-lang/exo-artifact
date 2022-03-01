@@ -6,6 +6,10 @@ set -e
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
+# Terminal colors
+RED='\033[0;31m'
+NC='\033[0m'
+
 # Exo implementations are not threaded, so force baselines to be single-threaded, too.
 num_threads=1
 export OPENBLAS_NUM_THREADS=$num_threads
@@ -16,17 +20,23 @@ export OMP_NUM_THREADS=$num_threads
 # Don't load the Docker virtual environment if one is already loaded.
 [ -z "$VIRTUAL_ENV" ] && source /opt/venv/bin/activate
 
-## Detect AVX-512 on host
-if grep avx512 /proc/cpuinfo >/dev/null; then
+# Detect AVX-512 on host
+grep avx512 /proc/cpuinfo >/dev/null && HAS_AVX512=1 || HAS_AVX512=0
+
+# Determine whether to run under SDE
+if [ "$HAS_AVX512" -eq 1 ]; then
   SDE=""
 else
+  echo -ne "${RED}"
   echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
   echo "*                                                                           *"
   echo "*               Your CPU does not appear to support AVX512                  *"
   echo "*     Benchmarks will run under SDE. See README.md for more information     *"
   echo "*                                                                           *"
   echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
+  echo -ne "${NC}"
   echo
+  sleep 3
   SDE="sde64 -skx -env OPENBLAS_CORETYPE SkylakeX -- "
 fi
 
@@ -62,3 +72,17 @@ python plot.py \
   --title "SGEMM results" \
   -o sgemm.png \
   sgemm-*.json
+
+if [ "$HAS_AVX512" -eq 0 ]; then
+  echo
+  echo -ne "${RED}"
+  echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
+  echo "*                                                                           *"
+  echo "*                Your CPU does not appear to support AVX512                 *"
+  echo "*        Benchmarks were run under SDE. Plots will not be accurate.         *"
+  echo "*                    See README.md for more information                     *"
+  echo "*                                                                           *"
+  echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
+  echo -ne "${NC}"
+  echo
+fi

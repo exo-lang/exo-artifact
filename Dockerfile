@@ -45,4 +45,13 @@ RUN python3.9 -m venv /opt/venv && \
     python -m pip install -U build && \
     cd exo && \
     python -m build --sdist --wheel --outdir dist/ . && \
-    python -m pip install dist/*.whl
+    python -m pip install dist/*.whl && \
+    rm -rf build dist && \
+    cd - && \
+    cmake -G Ninja -S exo/dependencies/benchmark -B build \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBENCHMARK_ENABLE_TESTING=NO \
+      -DCMAKE_INSTALL_PREFIX="/usr/local" \
+    && \
+    cmake --build build --target install && \
+    rm -rf build

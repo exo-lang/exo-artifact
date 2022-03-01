@@ -1,4 +1,5 @@
-.git/
-.gitmodules
-.gitignore
+# IDE files that aren't meant to be distributed.
 .idea/
+
+# Large data files that aren't used by the evaluation tests.
+./exo/tests/gemmini/gemmini-rocc-tests

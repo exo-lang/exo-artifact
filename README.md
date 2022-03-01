@@ -26,8 +26,8 @@ benchmarks and baselines. For SGEMM, the baselines are OpenBLAS and MKL. For CON
 baselines are Halide and Intel DNNL. As in the paper, both benchmarks are run on a
 single core.
 
-It will also produce matplotlib versions of the plots found in the paper and leave them
-in sgemm.png and conv.png, respectively.
+It will also produce a matplotlib versions of the SGEMM plot found in the paper
+as `sgemm.png`.
 
 The evaluation script should not take an especially long time to run. In our test
 environment, which uses an Intel i9-7900X CPU, it completes in under 3 minutes.

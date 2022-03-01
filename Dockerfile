@@ -1,6 +1,11 @@
 FROM ubuntu:20.04
 
-## Installing dependencies
+## Set up environment for evaluation
+WORKDIR /app
+ENV CC=clang-13
+ENV CXX=clang++-13
+
+## Install APT dependencies
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Los_Angeles
 RUN apt-get update &&  \
@@ -26,31 +31,33 @@ RUN apt-get update &&  \
       libjpeg-dev \
       pkg-config \
     && \
-    wget https://github.com/halide/Halide/releases/download/v13.0.4/Halide-13.0.4-x86-64-linux-3a92a3f95b86b7babeed7403a330334758e1d644.tar.gz && \
-    tar xvf Halide*.tar.gz --strip-components=1 -C /usr/local && \
+    rm -rf /var/lib/apt/lists/*
+
+## Download and install Halide 13.0.4
+RUN wget -q https://github.com/halide/Halide/releases/download/v13.0.4/Halide-13.0.4-x86-64-linux-3a92a3f95b86b7babeed7403a330334758e1d644.tar.gz && \
+    tar xvf Halide*.tar.gz -C /usr/local --exclude="Halide-13.0.4-x86-64-linux/share/doc" --strip-components=1 && \
     rm Halide*.tar.gz
 
-# Set environment variables for evaluation
-ENV CC=clang-13
-ENV CXX=clang++-13
-
-## Copy local files into image
-WORKDIR /app
-COPY . .
-
-## Build and install virtual environment for Exo
+## Build virtual environment for Exo
 RUN python3.9 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     python -m pip install -U setuptools pip wheel && \
     python -m pip install -U build && \
+    rm -rf /root/.cache
+
+## Copy local files into image
+COPY . .
+
+## Build and install Exo
+RUN . /opt/venv/bin/activate && \
+    python -m pip install -r requirements.txt && \
     cd exo && \
     python -m build --sdist --wheel --outdir dist/ . && \
     python -m pip install dist/*.whl && \
-    rm -rf build dist && \
-    cd - && \
-    python -m pip install -r requirements.txt && \
-    rm -rf /root/.cache && \
-    cmake -G Ninja -S exo/dependencies/benchmark -B build \
+    rm -rf build dist /root/.cache
+
+## Build and install exo's bundled dependencies
+RUN cmake -G Ninja -S exo/dependencies/benchmark -B build \
       -DCMAKE_BUILD_TYPE=Release \
       -DBENCHMARK_ENABLE_TESTING=NO \
       -DCMAKE_INSTALL_PREFIX="/usr/local" \

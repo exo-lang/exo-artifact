@@ -30,6 +30,15 @@ $ ./evaluation.sh
 
 This guide assumes you are running Ubuntu 20.04 LTS.
 
+### Make sure you cloned everything
+
+This repository and exo both use submodules for dependencies. Make sure those
+are pulled and up to date:
+
+```
+$ git submodule update --init --recursive
+```
+
 ### Setting up Docker
 
 First, follow the directions to install the latest version of Docker, posted

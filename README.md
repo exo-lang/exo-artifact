@@ -103,22 +103,26 @@ After executing the commands in the previous section, run the following.
 
 ```
 $ cd tests/gemmini
-$ python -m pytest matmul/test_gemmini_matmul_paper.py -s
-$ python -m pytest conv/test_gemmini_conv_no_pad.py -s
+$ python -m pytest matmul/test_gemmini_matmul_ae.py -s
+$ python -m pytest conv/test_gemmini_conv_ae.py -s
 ```
 
-This prints out the scheduled Exo code to the terminal and produces C code
+We encourage reviewers to take a look at the code. It starts from the simple algorithm and
+schedules the code into a complex one. Although it will not be able to be executed in this artifact evaluation, if you
+have a GEMMINI environment setup, the script will generate C code and compile them with downstream
+C compiler (GEMMINI's custom gcc), and runs a sanity-check on the result against the original algorithm.
+
+The script above prints out the original and the scheduled Exo code to the terminal and produces C code
 in `gemmini_build/`. You can take a look at the generated C code like so:
 
 ```
-$ cat gemmini_build/conv_3_lib.c
+$ cat gemmini_build/matmul_ae_lib.c
+$ cat gemmini_build/conv_ae_lib.c
 ```
-
-**TODO** Rename the output files to clearer name
 
 `*_lib.c` files are the generated C files and `*_lib.h` files are the generated header
 files. `*_main.c` files are generated to compile the C code with downstream C compilers
-(e.g., gcc, clang) but are not used for gemmini, since it requires access to custom
+(e.g., gcc, clang) but are not used for GEMMINI, since it requires access to custom
 prototype gcc implementation.
 
 ## Installing locally

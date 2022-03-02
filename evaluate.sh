@@ -1,10 +1,9 @@
 #!/bin/bash
 
 set -e
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
 ## Constants
-
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Terminal colors
 RED='\033[0;31m'
@@ -49,7 +48,7 @@ SECONDS=0
 
 ## Build apps
 
-cmake -G Ninja -S "${ROOT_DIR}/exo/apps" -B build \
+cmake -G Ninja -S exo/apps -B build \
   -DCMAKE_C_COMPILER=clang-13 \
   -DCMAKE_CXX_COMPILER=clang++-13 \
   -DCMAKE_BUILD_TYPE=Release \

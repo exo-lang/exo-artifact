@@ -68,7 +68,7 @@ $ python -m pytest
 
 Unfortunately, we are not able to provide reproduction scripts for our GEMMINI timings
 because they require access to prototype hardware. However, you can look at the generated
-C code and compare the line number.
+C code and compare the source code size.
 
 After executing the command in the previous section, run the following.
 ```
@@ -76,17 +76,18 @@ $ cd tests/gemmini
 $ python -m pytest matmul/test_gemmini_matmul_paper.py -s
 $ python -m pytest conv/test_gemmini_conv_no_pad.py -s
 ```
-They print out the scheduled Exo code to the terminal and produces the C code in `gemmini_build`.
-In order to look at the generated C code,
+This prints out the scheduled Exo code to the terminal and produces the C code in `gemmini_build/`.
+You can take a look at the generated C code by the following.
 ```
 $ cd gemmini_build
-$ cat conv_3_lib.c
+$ vim conv_3_lib.c
 ```
 **TODO** Rename the output files to clearer name
+**QUESTION??** Should we pre-install vim in Dockerfile?
 
-`_lib.c` files are generated C files and `_lib.h` files are generated header files.
-`_main.c` files are generated to compile the code with downstream C compile (e.g., gcc, clang)
-but are not used for gemmini, since they require access to custom prototype gcc implementation.
+`_lib.c` files are the generated C files and `_lib.h` files are the generated header files.
+`_main.c` files are generated to compile the C code with downstream C compilers (e.g., gcc, clang)
+but are not used for gemmini, since it requires an access to custom prototype gcc implementation.
 
 ## Installing locally
 

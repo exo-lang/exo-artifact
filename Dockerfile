@@ -22,6 +22,8 @@ RUN apt-get update &&  \
       python3.9-venv \
       clang-13 \
       clang++-13 \
+      clang-format-13 \
+      cloc \
       cmake \
       ninja-build \
       intel-oneapi-dnnl-devel \

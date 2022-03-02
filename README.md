@@ -11,7 +11,7 @@ In the `/app` directory of the artifact, you will find the following contents:
 2. `README.md` - this README document
 3. `evaluate.sh` - the entry point for running our x86
 4. `plot.py` - a tool used by `evaluate.sh` to plot benchmark results
-5. `exo/` - the source code for the publicly released version of exo, version 0.0.2
+5. `exo/` - the source code for the publicly released version of Exo, version 0.0.2
 6. `images/` - figures used in this document
 
 ## Artifact evaluation
@@ -79,9 +79,9 @@ If you do not have `cpupower` installed on your host system, then please consult
 distribution's package archives for this utility. On Ubuntu systems, it is provided by
 the package `linux-tools-common`.
 
-### Running exo's unit tests
+### Running Exo's unit tests
 
-If you would like to run exo's unit test suite, follow these steps.
+If you would like to run Exo's unit test suite, follow these steps.
 
 ```
 $ . /opt/venv/bin/activate
@@ -150,7 +150,7 @@ This guide assumes you are running Ubuntu 20.04 LTS.
 
 ### Make sure you cloned everything
 
-This repository and exo both use submodules for dependencies. Make sure those are pulled
+This repository and Exo both use submodules for dependencies. Make sure those are pulled
 and up to date:
 
 ```
@@ -186,17 +186,35 @@ $ sudo usermod -aG docker $USER
 $ sudo reboot
 ```
 
-### Building the Docker image
+### Using the Docker image
 
-This step is straightforward. Simply run:
+Once Docker is installed, the rest is straightforward. To build the container, simply
+run:
 
 ```
 $ docker build -t exo .
-$ docker run --name exo exo
-$ docker attach exo
 ```
 
-Then you can follow the same instructions as above.
+This will create a Docker _image_ named `exo`. Then you can create and run a container
+for that image by running:
+
+```
+$ docker run --name exo -it exo
+```
+
+This will place you into a terminal for a new container where you can run the above
+commands. To reconnect to the container after exiting, run:
+
+```
+$ docker start -ia exo
+```
+
+Finally, to clean up the container and its images after evaluation, run:
+
+```
+$ docker rm exo
+$ docker image prune
+```
 
 [sgemm-i5]: images/sgemm-i5.png
 

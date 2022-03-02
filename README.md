@@ -24,14 +24,19 @@ From inside the Docker container, simply run:
 $ ./evaluate.sh
 ```
 
-We encourage reviewers to glance at the script. It will simply compile and run our x86
-benchmarks and baselines. For SGEMM, the baselines are OpenBLAS and MKL. For CONV, the
-baselines are Halide and Intel DNNL. As in the paper, both benchmarks are run on a
-single core.
+We encourage reviewers to glance at the script. It will automatically reproduce the
+following results:
 
-It will also produce a matplotlib version of the SGEMM plot from the paper **(Figure
-6)** as `sgemm.png` . For the CONV results **(Table 2a)**, inspect the output of the
-last benchmark run .
+1. It will build and run our x86 benchmarks and baselines.
+    1. For SGEMM, the baselines are OpenBLAS and MKL.
+    2. For CONV, the baselines are Halide and Intel DNNL.
+    3. As in the paper, all benchmarks are run on a single core.
+2. **(Figure 6)** It will produce a matplotlib version of the SGEMM plot from the paper
+   as `sgemm.png`.
+3. **(Table 2a)** It will print the CONV results to standard output as the last
+   benchmark run.
+4. **(Table 2a)** It will print source line counts for the generated C code (column "C
+   gen") in the same order.
 
 The evaluation script should not take an especially long time to run. In our primary
 test environment, which uses an Intel i9-7900X CPU, it completes in under 3 minutes.
@@ -74,6 +79,18 @@ If you do not have `cpupower` installed on your host system, then please consult
 distribution's package archives for this utility. On Ubuntu systems, it is provided by
 the package `linux-tools-common`.
 
+Finally, changes to the compiler since submission have led to small deviations in the
+source line counts reported in the paper. The following table details the changes:
+
+| Benchmark | Submission (lines) | Camera-ready (lines) |
+|-----------|--------------------|----------------------|
+| SGEMM x86 | 831                | 846                  |
+| CONV x86  | 91                 | 102                  |
+
+The updated counts will be reported in the camera-ready submission. We do not believe
+they change any of our fundamental claims. You should expect the evaluation script to
+report the numbers that will be used for camera-ready.
+
 ### Running Exo's unit tests
 
 If you would like to run Exo's unit test suite, follow these steps.
@@ -102,13 +119,15 @@ $ python -m pytest matmul/test_gemmini_matmul_ae.py -s
 $ python -m pytest conv/test_gemmini_conv_ae.py -s
 ```
 
-We encourage reviewers to take a look at the code. It starts from the simple algorithm and
-schedules the code into a complex one. Although it will not be able to be executed in this artifact evaluation, if you
-have a GEMMINI environment setup, the script will generate C code and compile them with downstream
-C compiler (GEMMINI's custom gcc), and runs a sanity-check on the result against the original algorithm.
+We encourage reviewers to take a look at the code. It starts from the simple algorithm
+and schedules the code into a complex one. Although it will not be able to be executed
+in this artifact evaluation, if you have a GEMMINI environment setup, the script will
+generate C code and compile them with downstream C compiler (GEMMINI's custom gcc), and
+runs a sanity-check on the result against the original algorithm.
 
-The script above prints out the original and the scheduled Exo code to the terminal and produces C code
-in `gemmini_build/`. You can take a look at the generated C code like so:
+The script above prints out the original and the scheduled Exo code to the terminal and
+produces C code in `gemmini_build/`. You can take a look at the generated C code like
+so:
 
 ```
 $ cat gemmini_build/matmul_ae_lib.c

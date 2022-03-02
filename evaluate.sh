@@ -8,6 +8,8 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Terminal colors
 RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
 NC='\033[0m'
 
 # Exo implementations are not threaded, so force baselines to be single-threaded, too.
@@ -41,6 +43,9 @@ else
   sleep 3
   SDE="sde64 -skx -env OPENBLAS_CORETYPE SkylakeX -- "
 fi
+
+# Start timing
+SECONDS=0
 
 ## Build apps
 
@@ -88,5 +93,20 @@ if [ "$HAS_AVX512" -eq 0 ]; then
   echo "*                                                                           *"
   echo "** WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING **"
   echo -ne "${NC}"
-  echo
 fi
+
+echo
+
+## Print source line counts
+
+echo -e "${BLUE}Generated C source lines for AVX512 SGEMM:${NC}"
+clang-format-13 --style=LLVM build/x86_demo/sgemm/sgemm.exo/sgemm.{c,h} | cloc - --stdin-name=sgemm.c --quiet | grep Language -A2
+echo
+
+echo -e "${BLUE}Generated C source lines for AVX512 CONV:${NC}"
+clang-format-13 --style=LLVM build/x86_demo/conv/conv.exo/conv.{c,h} | cloc - --stdin-name=conv.c --quiet | grep Language -A2
+echo
+
+## Exit and report time
+duration=$(TZ=UTC0 printf '%(%M:%S)T\n' $SECONDS)
+echo -e "${GREEN}*** Done! ($duration elapsed) ***${NC}"

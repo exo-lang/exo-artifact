@@ -162,7 +162,7 @@ $ git submodule update --init --recursive
 First, follow the directions to install the latest version of Docker, posted
 here: https://docs.docker.com/engine/install/ubuntu/
 
-These are the steps I had to run on my local machine:
+These are the steps we ran on our reproduction machine:
 
 ```
 $ sudo apt remove docker docker.io containerd runc
@@ -179,7 +179,7 @@ $ sudo apt update
 $ sudo apt install docker-ce docker-ce-cli containerd.io
 ```
 
-Then you need to add yourself to the `docker` group and reboot:
+Then, add your user account to the `docker` group and reboot:
 
 ```
 $ sudo usermod -aG docker $USER
@@ -195,14 +195,14 @@ run:
 $ docker build -t exo .
 ```
 
-This will create a Docker _image_ named `exo`. Then you can create and run a container
+This will create a Docker _image_ named `exo`. Then you can create and run a _container_
 for that image by running:
 
 ```
 $ docker run --name exo -it exo
 ```
 
-This will place you into a terminal for a new container where you can run the above
+This will place you into a terminal for the new container where you can run the above
 commands. To reconnect to the container after exiting, run:
 
 ```

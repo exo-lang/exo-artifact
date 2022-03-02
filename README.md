@@ -43,10 +43,10 @@ and print a large warning. In this case, you should not expect accurate timings,
 should at least see that the benchmarks run and that plots are produced correctly. For
 reference, here are some possible plots you might see.
 
-| i9-7900X              | i7-1185G7             | i5-8400 (SDE)          |
-|-----------------------|-----------------------|------------------------|
-| ![][sgemm-i9]         | ![][sgemm-i7]         | ![][sgemm-i5]          |
-| Skylake-X Desktop CPU | Tiger Lake Mobile CPU | Coffee Lake Mobile CPU |
+| i9-7900X              | i7-1185G7             | i5-8400 (SDE)           |
+|-----------------------|-----------------------|-------------------------|
+| ![][sgemm-i9]         | ![][sgemm-i7]         | ![][sgemm-i5]           |
+| Skylake-X Desktop CPU | Tiger Lake Mobile CPU | Coffee Lake Desktop CPU |
 
 The first plot corresponds to the tests we reported in the paper, taken on an i9-7900X.
 

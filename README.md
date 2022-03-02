@@ -49,16 +49,11 @@ reference, here are some possible plots you might see.
 | Skylake-X Desktop CPU | Tiger Lake Mobile CPU | Coffee Lake Desktop CPU |
 
 The first plot corresponds to the tests we reported in the paper, taken on an i9-7900X.
-
 The second plot corresponds to a laptop Tiger Lake processor we have since tested and
 which supports AVX-512. We were pleased to see Exo lead the pack in this mobile CPU and
-will include this result in the camera-ready revision.
-
-The final plot corresponds to a laptop Coffee Lake processor that does not support
-AVX-512 and so must run under SDE's emulation. It is worth noting that OpenBLAS uses
-AVX2 instructions to optimize tail cases, rather than relying on its packing mechanism
-to exclusively use AVX-512. This allows SDE to run these tail cases without emulation
-overhead. This is likely the same reason it trails Exo and MKL on native chips.
+will include this result in the camera-ready revision. The final plot corresponds to a
+desktop Coffee Lake processor that does not support AVX-512 and so must run under SDE's
+emulation. Do not read too much into these results.
 
 If, while running the evaluation script, you see the message
 

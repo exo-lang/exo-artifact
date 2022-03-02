@@ -1,7 +1,7 @@
 # PLDI 2022 Artifact Evaluation for Exo
 
 Here follow instructions for running our artifact and validating the claims made in the
-paper.
+paper. Note that we renamed our system from SYSTL in the paper to Exo.
 
 ## Artifact layout
 
@@ -56,13 +56,37 @@ the package `linux-tools-common`.
 
 ### Running exo's unit tests
 
-If you would like to run exo's unit tests, follow these steps... (TODO)
+If you would like to run exo's unit tests, follow these steps.
+```
+$ . /opt/venv/bin/activate
+$ cd exo
+$ python -m pip install -r requirements.txt
+$ python -m pytest
+```
 
 ### Running the GEMMINI tests
 
 Unfortunately, we are not able to provide reproduction scripts for our GEMMINI timings
-because they require access to prototype hardware. However, you can do this instead...
-(TODO)
+because they require access to prototype hardware. However, you can look at the generated
+C code and compare the line number.
+
+After executing the command in the previous section, run the following.
+```
+$ cd tests/gemmini
+$ python -m pytest matmul/test_gemmini_matmul_paper.py -s
+$ python -m pytest conv/test_gemmini_conv_no_pad.py -s
+```
+They print out the scheduled Exo code to the terminal and produces the C code in `gemmini_build`.
+In order to look at the generated C code,
+```
+$ cd gemmini_build
+$ cat conv_3_lib.c
+```
+**TODO** Rename the output files to clearer name
+
+`_lib.c` files are generated C files and `_lib.h` files are generated header files.
+`_main.c` files are generated to compile the code with downstream C compile (e.g., gcc, clang)
+but are not used for gemmini, since they require access to custom prototype gcc implementation.
 
 ## Installing locally
 

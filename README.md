@@ -188,6 +188,16 @@ $ sudo reboot
 
 ### Building the Docker image
 
+This step is straightforward. Simply run:
+
+```
+$ docker build -t exo .
+$ docker run --name exo exo
+$ docker attach exo
+```
+
+Then you can follow the same instructions as above.
+
 [sgemm-i5]: images/sgemm-i5.png
 
 [sgemm-i7]: images/sgemm-i7.png

@@ -107,13 +107,41 @@ $ python -m pytest
 This will take substantially longer to complete than the evaluation script. Expect this
 to run for tens of minutes.
 
+Exo's unit tests consist of many correctness and safety check tests such as this one:
+
+```
+def test_reorder_stmts_fail():
+    @proc
+    def foo( N : size, x : R[N] ):
+        x[0] = 3.0
+        x[0] = 4.0
+
+    with pytest.raises(SchedulingError,
+                       match='do not commute'):
+        foo = foo.reorder_stmts('x[0] = 3.0', 'x[0] = 4.0')
+        print(foo)
+```
+
+The purpose of this particular test is to check that communitivity analysis stated in Section 5.7
+and Definition 5.6 in the paper works correctly if two statements do not commute.
+`foo.reorder_stmts` tries to reoder the first and the second statement in the proc `foo`, but
+the program analysis will catch that it is not safe to do so because the value of `x[0]` will be
+`3.0` instead of `4.0` if the reordering happens.
+
+If reviewers wish to go through program analysis tests,
+such tests can be found in `tests/test_new_eff.py` and `tests/test_schedules.py`.
+
 ### Running the GEMMINI tests
 
 Unfortunately, we are not able to provide reproduction scripts for our GEMMINI timings
-because they require access to prototype hardware. However, you can look at the
-generated C code and check the source code size.
+because they require access to prototype hardware.
+However, Exo can still generate GEMMINI C code and reviewers can take a look at the
+generated C code and the scheduling transformation needed to reach the reported number
+in the paper.
 
-After executing the commands in the previous section, run the following.
+Running `./evaluate.sh` will report the source code size of GEMMINI matmul and conv.
+If reviewers wish to take a look at the C code and the schedule transformations,
+after executing the commands in the previous section, run the following.
 
 ```
 $ cd tests/gemmini
@@ -121,7 +149,11 @@ $ python -m pytest matmul/test_gemmini_matmul_ae.py -s
 $ python -m pytest conv/test_gemmini_conv_ae.py -s
 ```
 
-We encourage reviewers to take a look at the code. It starts from the simple algorithm
+We encourage reviewers to take a look at the code in `matmul/test_gemmini_matmul_ae.py`
+and `conv/test_gemmini_conv_ae.py`. You can confirm the algorithm and the schedule source
+code size reported in Table 3 in the paper.
+
+Both tests starts from the simple algorithm
 and schedules the code into a complex one. Although it will not be able to be executed
 in this artifact evaluation, if you have a GEMMINI environment setup, the script will
 generate C code and compile them with downstream C compiler (GEMMINI's custom gcc), and

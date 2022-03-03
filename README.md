@@ -35,7 +35,7 @@ following results:
    as `sgemm.png`.
 3. **(Table 2a)** It will print the CONV results to standard output as the last
    benchmark run.
-4. **(Table 2a)** It will print source line counts for the generated C code (column "C
+4. **(Table 3)** It will print source line counts for the generated C code (column "C
    gen") in the same order.
 
 The evaluation script should not take an especially long time to run. In our primary

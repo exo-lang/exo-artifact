@@ -169,9 +169,7 @@ $ cat gemmini_build/conv_ae_lib.c
 ```
 
 The `*_lib.c` files are generated C sources and the `*_lib.h` files are generated header
-files. `*_main.c` files are generated to compile the C code with downstream C compilers
-(e.g., gcc, clang) but are not used for GEMMINI, since it requires access to custom
-prototype gcc implementation.
+files.
 
 ## Installing locally
 

@@ -52,7 +52,7 @@ ENV PATH=$PATH:/opt/sde
 RUN python3.9 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     python -m pip install -U setuptools pip wheel && \
-    python -m pip install -U build && \
+    python -m pip install -U build pytest && \
     rm -rf /root/.cache
 
 ## Copy local files into image

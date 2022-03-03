@@ -109,7 +109,7 @@ to run for tens of minutes.
 
 Exo's unit tests consist of many correctness and safety check tests such as this one:
 
-```
+```python
 def test_reorder_stmts_fail():
     @proc
     def foo( N : size, x : R[N] ):
@@ -122,9 +122,9 @@ def test_reorder_stmts_fail():
         print(foo)
 ```
 
-The purpose of this particular test is to check that communitivity analysis stated in Section 5.7
-and Definition 5.6 in the paper works correctly if two statements do not commute.
-`foo.reorder_stmts` tries to reoder the first and the second statement in the proc `foo`, but
+The purpose of this particular test is to check that the commutativity analysis stated
+in Section 5.7 and Definition 5.6 in the paper work correctly if two statements do not commute.
+`foo.reorder_stmts` tries to reorder the first and the second statement in the proc `foo`, but
 the program analysis will catch that it is not safe to do so because the value of `x[0]` will be
 `3.0` instead of `4.0` if the reordering happens.
 
@@ -135,7 +135,7 @@ such tests can be found in `tests/test_new_eff.py` and `tests/test_schedules.py`
 
 Unfortunately, we are not able to provide reproduction scripts for our GEMMINI timings
 because they require access to prototype hardware.
-However, Exo can still generate GEMMINI C code and reviewers can take a look at the
+However, Exo can still generate GEMMINI C code, and reviewers can take a look at the
 generated C code and the scheduling transformation needed to reach the reported number
 in the paper.
 
@@ -153,11 +153,11 @@ We encourage reviewers to take a look at the code in `matmul/test_gemmini_matmul
 and `conv/test_gemmini_conv_ae.py`. You can confirm the algorithm and the schedule source
 code size reported in Table 3 in the paper.
 
-Both tests starts from the simple algorithm
-and schedules the code into a complex one. Although it will not be able to be executed
-in this artifact evaluation, if you have a GEMMINI environment setup, the script will
-generate C code and compile them with downstream C compiler (GEMMINI's custom gcc), and
-runs a sanity-check on the result against the original algorithm.
+Both tests start from the simple algorithm and schedule the code into a complex one.
+Although it will not be executed in this artifact evaluation, if you have
+a GEMMINI environment setup, the script will generate C code and compile them with
+downstream C compiler (GEMMINI's custom gcc),
+and runs a sanity-check on the result against the original algorithm.
 
 The script above prints out the original and the scheduled Exo code to the terminal and
 produces C code in `gemmini_build/`. You can take a look at the generated C code like

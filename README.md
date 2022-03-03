@@ -39,8 +39,8 @@ following results:
    gen") in the same order.
 
 The evaluation script should not take an especially long time to run. In our primary
-test environment, which uses an Intel i9-7900X CPU, it completes in under 3 minutes.
-Under emulation and on a slower CPU, it could take up to 15 minutes.
+test environment, which uses an Intel i9-7900X CPU, it completes in under 5 minutes.
+Under emulation and on a slower CPU, it could take up to 20 minutes.
 
 Note that our implementation requires the use of AVX-512 instructions. If your CPU does
 not support these instructions, then the script will run under the [Intel SDE] emulator

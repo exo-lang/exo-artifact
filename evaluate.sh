@@ -21,11 +21,6 @@ export OMP_NUM_THREADS=$num_threads
 # Don't load the Docker virtual environment if one is already loaded.
 [ -z "$VIRTUAL_ENV" ] && source /opt/venv/bin/activate
 
-# Executing GEMMINI tests
-python -m pytest \
-  exo/tests/gemmini/matmul/test_gemmini_matmul_ae.py \
-  exo/tests/gemmini/conv/test_gemmini_conv_ae.py
-
 # Detect AVX-512 on host
 grep avx512 /proc/cpuinfo >/dev/null && HAS_AVX512=1 || HAS_AVX512=0
 
@@ -62,6 +57,12 @@ cmake -G Ninja -S exo/apps -B build \
   -DDNNL_CONFIGURATION=cpu_gomp # Ensure that OMP_NUM_THREADS is respected
 
 cmake --build build
+
+## Execute GEMMINI tests
+
+python -m pytest \
+  exo/tests/gemmini/matmul/test_gemmini_matmul_ae.py \
+  exo/tests/gemmini/conv/test_gemmini_conv_ae.py
 
 ## Run benchmarks
 

@@ -21,6 +21,13 @@ export OMP_NUM_THREADS=$num_threads
 # Don't load the Docker virtual environment if one is already loaded.
 [ -z "$VIRTUAL_ENV" ] && source /opt/venv/bin/activate
 
+# Executing GEMMINI tests
+cd exo
+python -m pip install -r requirements.txt
+python -m pytest tests/gemmini/matmul/test_gemmini_matmul_ae.py
+python -m pytest tests/gemmini/conv/test_gemmini_conv_ae.py
+cd ..
+
 # Detect AVX-512 on host
 grep avx512 /proc/cpuinfo >/dev/null && HAS_AVX512=1 || HAS_AVX512=0
 
@@ -104,6 +111,14 @@ echo
 
 echo -e "${BLUE}Generated C source lines for AVX512 CONV:${NC}"
 clang-format-13 --style=LLVM build/x86_demo/conv/conv.exo/conv.{c,h} | cloc - --stdin-name=conv.c --quiet | grep Language -A2
+echo
+
+echo -e "${BLUE}Generated C source lines for GEMMINI MATMUL:${NC}"
+clang-format-13 --style=LLVM exo/tests/gemmini/gemmini_build/matmul_ae_lib.{c,h} | cloc - --stdin-name=matmul_ae_lib.c --quiet | grep Language -A2
+echo
+
+echo -e "${BLUE}Generated C source lines for GEMMINI CONV:${NC}"
+clang-format-13 --style=LLVM exo/tests/gemmini/gemmini_build/conv_ae_lib.{c,h} | cloc - --stdin-name=conv_ae_lib.c --quiet | grep Language -A2
 echo
 
 ## Exit and report time

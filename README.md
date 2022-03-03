@@ -86,6 +86,8 @@ source line counts reported in the paper. The following table details the change
 |-----------|--------------------|----------------------|
 | SGEMM x86 | 831                | 846                  |
 | CONV x86  | 91                 | 102                  |
+| MATMUL GEMMINI | 505           | 462                  |
+| CONV GEMMINI   | 9409          | 8317                  |
 
 The updated counts will be reported in the camera-ready submission. We do not believe
 they change any of our fundamental claims. You should expect the evaluation script to

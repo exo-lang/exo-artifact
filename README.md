@@ -16,6 +16,36 @@ In the `/app` directory of the artifact, you will find the following contents:
 
 ## Artifact evaluation
 
+### Loading the Docker image
+
+You should have gotten a Docker image tarball named `exo-ae.tar`. Start by loading the
+image into Docker:
+
+```
+$ docker load --input exo-ae.tar
+```
+
+The image is named `exo`. Next, you can create and run a _container_ for that image by
+running:
+
+```
+$ docker run --name exo -it exo
+```
+
+This will place you into a terminal for the new container where you can run the above
+commands. To reconnect to the container after exiting, run:
+
+```
+$ docker start -ia exo
+```
+
+Finally, to clean up the container and its images after evaluation, run:
+
+```
+$ docker rm exo
+$ docker image prune
+```
+
 ### Running the evaluation script
 
 From inside the Docker container, simply run:
@@ -248,26 +278,9 @@ run:
 $ docker build -t exo .
 ```
 
-This will create a Docker _image_ named `exo`. Then you can create and run a _container_
-for that image by running:
-
-```
-$ docker run --name exo -it exo
-```
-
-This will place you into a terminal for the new container where you can run the above
-commands. To reconnect to the container after exiting, run:
-
-```
-$ docker start -ia exo
-```
-
-Finally, to clean up the container and its images after evaluation, run:
-
-```
-$ docker rm exo
-$ docker image prune
-```
+This will create a Docker _image_ named `exo`. Then, follow the directions at the top of
+this document to create a container for the image, start a terminal in it, and run the
+evaluation steps.
 
 [sgemm-i5]: images/sgemm-i5.png
 

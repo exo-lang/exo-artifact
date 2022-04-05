@@ -60,12 +60,12 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 | --- | --- |
 |`.data_reuse(buf1, buf2)` | Reuses a buffer `buf1` in the use site of `buf2` and removes the allocation of `buf2`.|
 |`.inline_window(win_stmt)` | Removes the window statement `win_stmt`, which is an alias to the window, and inline the windowing in its use site.|
-- `.expand_dim(stmt, alloc_dim, indexing)` expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.
-- `.bind_expr(new_name, expr)` binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.
-- `.stage_mem(win_expr, new_name, stmt_start, stmt_end=None)` stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.
-- `.stage_assn(new_name, stmt)` binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.
-- `.rearrange_dim(alloc, dimensions)` takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.
-- `.lift_alloc(alloc, n_lifts=1, mode='row', size=None, keep_dims=False)` lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope.
+|`.expand_dim(stmt, alloc_dim, indexing)` | Expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.|
+|`.bind_expr(new_name, expr)` binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.|
+|`.stage_mem(win_expr, new_name, stmt_start, stmt_end=None)` | Stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.|
+|`.stage_assn(new_name, stmt)` | Binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.|
+|`.rearrange_dim(alloc, dimensions)` | Takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.|
+|`.lift_alloc(alloc, n_lifts=1, keep_dims=False)` | Lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope. When lifting the allocation out of the for loop, it will expand its dimension to the loop bound if `keep_dims` is True. |
 
 **Loop related operations**
 - `.split(split_var, split_const, out_vars, tail='guard', perfect=False)`

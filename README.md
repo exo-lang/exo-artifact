@@ -66,7 +66,45 @@ Scheduling operations
 - `set_precision(name, type)` sets the precision type of `name` to `type`
 - `set_window(name, is_window)` if `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type
 - `set_memory(name, mem_type)` sets a buffer `name`'s memory type to `mem_type`
+- `bind_config(var, config, field)` sets 
+- `data_reuse(self, buf_pattern, replace_pattern)`
+- `configwrite_root(self, config, field, var_pattern)`
+- `configwrite_after(self, stmt_pattern, config, field, var_pattern)`
+- `inline_window(self, stmt_pattern)`
+- `split(self, split_var, split_const, out_vars, tail='guard', perfect=False)`
+- `expand_dim(self, stmt_pat, alloc_dim_pat, indexing_pat, unsafe_disable_checks=False)`
+- `add_unsafe_guard(self, stmt_pat, var_pattern)`
+- `specialize(self, stmt_pat: str, conds: Union[str, List[str]])`
+- `add_assertion(self, assertion)`
+- `add_guard(self, stmt_pat, iter_pat, value)`
+- `bound_and_guard(self, loop)`
+```
+        Replace
+          for i in par(0, e): ...
+        with
+          for i in par(0, c):
+            if i < e: ...
+        where c is the tightest constant bound on e
+        This currently only works when e is of the form x % n
+```
+- `fuse_loop(self, loop1, loop2)`
+- `fuse_if(self, if1, if2)`
+- `add_loop(self, stmt, var, hi)`
+- `merge_guard(self, stmt1, stmt2)`
+- `insert_pass(self, pat: str)`
+- `delete_pass(self)`
+- `reorder_before(self, pat)`
+- `delete_config(self, stmt_pat)`
+- `reorder_stmts(self, first_pat, second_pat)`
+- `lift_if(self, if_pattern, n_lifts=1)`
+- `assert_if(self, if_pattern, cond)`
+- `partition_loop(self, var_pattern, num)`
+- `reorder(self, out_var, in_var)`
+- `unroll(self, unroll_var)`
+- `replace(self, subproc, pattern, quiet=False)`
+- `replace_all(self, subproc)`
 - 
+
 
 
 ### Documentation for examples

@@ -1,6 +1,6 @@
 # PLDI 2022 Artifact Evaluation for Exo
 
-Here is the instruction for the **reusable** artifact evaluation for Exo.
+Here is the instruction for the reusable artifact evaluation for Exo.
 For the reusable badge, we understood that the artifact should meet the following criteria:
 1. Can be run locally
 2. Very well documented
@@ -8,11 +8,11 @@ For the reusable badge, we understood that the artifact should meet the followin
 
 Please refer to each section in this document to find the procedure to evaluate each criteria.
 
-Please refer to `functional.md` for the previous functional artifact evaluation procedure.
+Please refer to `functional.md` for the previous README for the functional evaluation.
 
 ## 1. Can be run locally
 
-Exo is published on PyPI and can be installed locally via pip with the following command. Throughout this evaluation, reviewers do not need to download Zenodo or run docker.
+Exo is published on PyPI and can be installed locally via pip by the following command. Throughout this evaluation, reviewers do not need to download Zenodo or run docker.
 
 ```
 $ pip install exo-lang
@@ -112,17 +112,18 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 
 ## 3. Able to make changes
 
-We provided a sample user code in `examples/x86_matmul.py`. `rank_k_reduce_6x16` is a microkernel for AVX2 SGEMM application.
-We chose this application because it is relatively simple but contains all the important scheduling operators.
+We provided a sample user code in `exo-artifact/examples/x86_matmul.py`. `rank_k_reduce_6x16` is a microkernel for AVX2 SGEMM application.
+We chose to use AVX2 so that reviewers who do not have AVX512 machines can run this example.
+We chose the SGEMM microkernel application because it is relatively simple but contains all the important scheduling operators.
+Please run the code as follows.
 
 ```
 $ python x86_matmul.py
 ```
 
-### Schedule walk-through
+### Scheduling walk-through
 
-We will try to walk through the scheduling transforms step by step. Without any modification, you will see a simple tri-loop print saying "Original algorithm".
-This is the original, simple algorithm that we will start with.
+We will try to walk through the scheduling transforms step by step. Without any modification, `python x86_matmul.py` will print the original, simple algorithm that we will start with.
 ```
 Original algorithm:
 def rank_k_reduce_6x16(K: size, C: f32[6, 16] @ DRAM, A: f32[6, K] @ DRAM,
@@ -133,7 +134,9 @@ def rank_k_reduce_6x16(K: size, C: f32[6, 16] @ DRAM, A: f32[6, K] @ DRAM,
                 C[i, j] += A[i, k] * B[k, j]
 ```
 
-Next, please uncomment the code in the first block. Now, you will see that `C` is staged to a buffer called `C_reg`, which resides in AVX2 register denoted by `@ AVX2`.
+Next, please uncomment the code in the first block.
+Now, you will see that `stage_assn()` operator stages `C` to a buffer called `C_reg`.
+`set_memory()` sets `C_reg`'s memory to AVX2 to use it as a AVX vector, which is denoted by `@ AVX2`.
 ```
 First block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -147,7 +150,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                 C[i, j] = C_reg
 ```
 
-Please uncomment the code in the second block. You will see that the `j` loop is `split` into two loops `jo` and `ji`, and loops are reordered so that the `k` loop becomes outermost.
+Please uncomment the code in the second block. You will see that the `j` loop is `split()` into two loops `jo` and `ji`, and loops are `reorder()`ed so that the `k` loop becomes outermost.
 ```
 Second block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -162,6 +165,9 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                     C[i, 8 * jo + ji] = C_reg
 ```
 
+Please uncomment the code in the third block. Please notice that
+- The allocation of `C_reg` is lifted up by `lift_alloc()`
+- `C_reg` initialization, reduction, and write back are `fission()`ed into three separate blocks.
 ```
 Third block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -184,6 +190,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                     C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
 ```
 
+Please uncomment the code in the forth block. `A` is binded to 8 wide AVX2 vector register `a_vec` by `bind_expr()` and `set_memory()`.
 ```
 Forth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -209,6 +216,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                     C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
 ```
 
+Please uncomment the code in the fifth block. Same schedule for `A` is applied to `B`.
 ```
 Fifth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -237,7 +245,11 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                     C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
 ```
 
-
+Finally, please uncomment the sixth block.
+The sixth block replaces the statements with the equivalent call to AVX2 instructions.
+AVX2 hardware instruction is defined in Exo [here](https://github.com/ChezJrk/exo/blob/master/src/exo/platforms/x86.py#L8).
+Please look into the definition of `mm256_loadu_ps` for example, and notice that it is very simple yet has a similar syntax to the first `ji` loop in the fifth block.
+We will replace the statement with the call to AVX2 instruction procedures, and get the final schedule.
 ```
 Sixth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -263,7 +275,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                 C_reg[k + 0, i + 0, jo + 0, 0:8])
 ```
 
-Here is the potential modification to this code that you might want to try.
+We would suggest reviewers to make the following modification to the code:
 - Modify the original algorithm so that the `k` loop becomes outermost. Adjust the scheduling operations so that the resulting code will be the same as the output of the sixth block.
 
 ### Compiling
@@ -272,7 +284,7 @@ Finally, your code can be compiled and run on your machine, if you have AVX2 ins
 Please uncomment the Seventh block and run the script.
 It will compile the original procedure `rank_k_reduce_6x16` as `orig_matmul`, and the scheduled procedure `avx` as `avx2_matmul`.
 
-Now, we provided a main function to call those procedure and time them. Please run
+We provided a main function in `main.c` to call those procedure and to time them. Please run
 ```
 $ gcc -march=native main.c avx2_matmul.c orig_matmul.c
 $ ./a.out
@@ -284,5 +296,5 @@ Time taken for original matmul: 0 seconds 490 milliseconds
 Time taken for scheduled matmul: 0 seconds 236 milliseconds
 ```
 
-Even for this small example, we can see the power of AVX instrutions.
+Even for this small example, we can see the power of AVX2 instrutions.
 

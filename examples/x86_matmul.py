@@ -94,9 +94,3 @@ avx = avx.replace(mm256_storeu_ps, 'for ji in _:_ #0')
 print("Sixth block:")
 print(avx)
 """
-
-# Seventh block
-"""
-avx.compile_c(".", "avx2_matmul")
-rank_k_reduce_6x16.compile_c(".", "orig_matmul")
-"""

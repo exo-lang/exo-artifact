@@ -9,4 +9,5 @@ main.c: avx2_matmul.c
 
 .PHONY: clean
 clean:
-	$(RM) avx2_matmul.* *.o exo_demo
+	$(RM) avx2_matmul avx2_matmul.* *.o exo_demo
+	$(RM) -r __pycache__/

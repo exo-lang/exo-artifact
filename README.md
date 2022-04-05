@@ -130,19 +130,13 @@ In [Exo repository](https://github.com/ChezJrk/exo), folder structure is follows
 
 #### Gemmini
 
-Running `./evaluate.sh` will report the source code size of GEMMINI matmul and conv. If
-reviewers wish to look at the C code and the scheduling transformations then, after
-executing the commands in the previous section, run the following.
+We provided a documentation for Gemmini code used
+The code is the same as `exo/tests/gemmini/matmul/test_gemmini_matmul_ae.py` and `exo/tests/gemmini/matmul/test_gemmini_matmul_ae.py`
 
 ```
-$ cd tests/gemmini
-$ python -m pytest matmul/test_gemmini_matmul_ae.py -s
-$ python -m pytest conv/test_gemmini_conv_ae.py -s
+$ python examples/test_gemmini_matmul_ae.py -s
+$ python examples/test_gemmini_conv_ae.py -s
 ```
-
-We encourage reviewers to look at the code in `matmul/test_gemmini_matmul_ae.py`
-and `conv/test_gemmini_conv_ae.py`. You can confirm the algorithm and schedule source
-code sizes match Table 3 in the paper.
 
 Both tests start from a simple algorithm and schedule the code into a complex one.
 Although it is not executed in this artifact evaluation, if you happen to have a GEMMINI

@@ -27,44 +27,44 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
    - `API.py` defines all the Exo API exposed to the user. Documentation of the API can be found in the section below.
    - `libs/` includes user-defined memory definitions (`memories.py`) and the custom malloc implementations.
    - `platforms/` includes user-defined instruction definitions that are part of the release.
-   - Other files are the core implementation of Exo (e.g., `typecheck.py` implements typecheck), but will not explain here as they are not exposed to users
-2. `apps/` includes user-level application code using Exo
-3. `dependencies/` includes submodules that Exo depends on
-4. `examples/` includes Python notebook that we used for Demo
-5. `tests/` includes unit tests
+   - Other files are the core implementation of Exo (e.g., `typecheck.py` implements typecheck), but will not explain here as they are not exposed to users.
+2. `apps/` includes user-level application code using Exo.
+3. `dependencies/` includes submodules that Exo depends on.
+4. `examples/` includes Python notebook that we used for Demo.
+5. `tests/` includes unit tests.
 
 ### Documentation for scheduling API
 
 #### Top-level Python function decorator
-1. `@proc` decorated Python function is parsed and compiled as Exo language. Returns `Procedure` object
-2. `@instr` is the same as `@proc` but takes a string of hardware instructions
+1. `@proc`  decorated Python function is parsed and compiled as Exo language. Returns a `Procedure` object.
+2. `@instr` is the same as `@proc`,  but takes a hardware instruction as a formatted string.
 3. `@config` decorates a Python class which is parsed and compile as Exo configuration object 
 
-#### Procedure object
+#### Procedure object methods
 **Introspection operations**
-- `name()` returns a procedure name
-- `check_effects()` forces Exo to run the effect check on this procedure
-- `show_effects()` prints the effects of the procedure
-- `show_effect(stmt)` prints the effect of the stmt in the procedure
-- `is_instr()` returns true if the procedure is `@instr`
-- `get_instr()` returns the instruction string
-- `get_ast()` returns QAST, which is the introspection AST representation
+- `name()` returns the procedure name.
+- `check_effects()` forces Exo to run the effect check on the procedure.
+- `show_effects()` prints the effects of the procedure.
+- `show_effect(stmt)` prints the effect of the `stmt` in the procedure.
+- `is_instr()` returns `true` if the procedure has a hardware instruction string.
+- `get_instr()` returns the hardware instruction string.
+- `get_ast()` returns `QAST`, which is an introspection AST representation.
 
 **Execution / interpretation operations**
-- `compile_c(directory, filename)` compiles this procedure into C and stores in filename in directory
-- `interpret(**args)` interprets this procedure
+- `compile_c(directory, filename)` compiles the procedure into C and stores in `filename` in the `directory`.
+- `interpret(**args)` runs Exo interpreter on the procedure.
 
-#### Scheduling operations on Procedure object
+#### Scheduling operations on Procedure objects
 **Buffer related operations**
-- `data_reuse(self, buf_pattern, replace_pattern)`
-- `inline_window(self, stmt_pattern)`
-- `expand_dim(self, stmt_pat, alloc_dim_pat, indexing_pat, unsafe_disable_checks=False)`
-- `bind_expr(self, new_name, expr_pattern, cse=False)`
-- `stage_mem(self, win_expr, new_name, stmt_start, stmt_end=None, accum=False)`
-- `stage_assn(self, new_name, stmt_pattern)`
-- `rearrange_dim(self, alloc_pattern, dimensions)`
-- `lift_alloc_simple(self, alloc_site_pattern, n_lifts=1)`            
-- `lift_alloc(self, alloc_site_pattern, n_lifts=1, mode='row', size=None, keep_dims=False)`
+- `data_reuse(self, buf1, buf2)` reuses a buffer `buf1` in the use site of `buf2` and removes the allocation of `buf2`.
+- `inline_window(self, win_stmt)` removes the window statement `win_stmt`, which is an alias to the window, and inline the windowing in its use site.
+- `expand_dim(self, stmt, alloc_dim, indexing)` expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.
+- `bind_expr(self, new_name, expr)` binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.
+- `stage_mem(self, win_expr, new_name, stmt_start, stmt_end=None)` stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.
+- `stage_assn(self, new_name, stmt)` binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.
+- `rearrange_dim(self, alloc, dimensions)` takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.
+- `lift_alloc_simple(self, alloc, n_lifts=1)` lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope.
+- `lift_alloc(self, alloc, n_lifts=1, mode='row', size=None, keep_dims=False)`
 
 **Loop related operations**
 - `split(self, split_var, split_const, out_vars, tail='guard', perfect=False)`

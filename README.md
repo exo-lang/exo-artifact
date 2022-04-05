@@ -124,7 +124,7 @@ $ python x86_matmul.py
 ### Scheduling walk-through
 
 We will try to walk through the scheduling transforms step by step. Without any modification, `python x86_matmul.py` will print the original, simple algorithm that we will start with.
-```
+```python
 Original algorithm:
 def rank_k_reduce_6x16(K: size, C: f32[6, 16] @ DRAM, A: f32[6, K] @ DRAM,
                        B: f32[K, 16] @ DRAM):
@@ -137,7 +137,7 @@ def rank_k_reduce_6x16(K: size, C: f32[6, 16] @ DRAM, A: f32[6, K] @ DRAM,
 Next, please uncomment the code in the first block.
 Now, you will see that `stage_assn()` operator stages `C` to a buffer called `C_reg`.
 `set_memory()` sets `C_reg`'s memory to AVX2 to use it as a AVX vector, which is denoted by `@ AVX2`.
-```
+```python
 First block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):

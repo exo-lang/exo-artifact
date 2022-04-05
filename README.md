@@ -151,7 +151,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
 ```
 
 Please uncomment the code in the second block. You will see that the `j` loop is `split()` into two loops `jo` and `ji`, and loops are `reorder()`ed so that the `k` loop becomes outermost.
-```
+```python
 Second block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
@@ -168,7 +168,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
 Please uncomment the code in the third block. Please notice that
 - The allocation of `C_reg` is lifted up by `lift_alloc()`
 - `C_reg` initialization, reduction, and write back are `fission()`ed into three separate blocks.
-```
+```python
 Third block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
@@ -191,7 +191,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
 ```
 
 Please uncomment the code in the forth block. `A` is binded to 8 wide AVX2 vector register `a_vec` by `bind_expr()` and `set_memory()`.
-```
+```python
 Forth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
@@ -217,7 +217,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
 ```
 
 Please uncomment the code in the fifth block. Same schedule for `A` is applied to `B`.
-```
+```python
 Fifth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
@@ -250,7 +250,7 @@ The sixth block replaces the statements with the equivalent call to AVX2 instruc
 AVX2 hardware instruction is defined in Exo [here](https://github.com/ChezJrk/exo/blob/master/src/exo/platforms/x86.py#L8).
 Please look into the definition of `mm256_loadu_ps` for example, and notice that it is very simple yet has a similar syntax to the first `ji` loop in the fifth block.
 We will replace the statement with the call to AVX2 instruction procedures, and get the final schedule.
-```
+```python
 Sixth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):

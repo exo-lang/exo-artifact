@@ -24,10 +24,10 @@ $ pip install exo-lang
 
 In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as follows:
 1. `src/exo` is where all the core Exo implementation resides.
-    - `API.py` defines all the Exo API exposed to the user. Documentation of the API can be found in the section below.
-    - `libs/` includes user-defined memory definitions (`memories.py`) and the custom malloc implementations.
-    - `platforms/` includes user-defined instruction definitions that are part of the release.
-    - Other files are the core implementation of Exo (e.g., `typecheck.py` implements typecheck), but will not explain here as they are not exposed to users
+   - `API.py` defines all the Exo API exposed to the user. Documentation of the API can be found in the section below.
+   - `libs/` includes user-defined memory definitions (`memories.py`) and the custom malloc implementations.
+   - `platforms/` includes user-defined instruction definitions that are part of the release.
+   - Other files are the core implementation of Exo (e.g., `typecheck.py` implements typecheck), but will not explain here as they are not exposed to users
 2. `apps/` includes user-level application code using Exo
 3. `dependencies/` includes submodules that Exo depends on
 4. `examples/` includes Python notebook that we used for Demo

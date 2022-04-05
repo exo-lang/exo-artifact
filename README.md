@@ -35,12 +35,39 @@ In [Exo repository](https://github.com/ChezJrk/exo), folder structure is follows
 
 ### Documentation for scheduling API
 
-Top-level decorator
-- `@proc` 
-- `@instr`
-- `@config`
+#### Top-level Python function decorator
+1. `@proc` decorated Python function is parsed and compiled as Exo language. Returns `Procedure` object
+2. `@instr` is the same as `@proc` but takes a string of hardware instructions
+3. `@config` decorates a Python class which is parsed and compile as Exo configuration object 
 
-compile_procs(proc_list, path, c_file, h_file)
+- `compile_procs(proc_list, path, c_file, h_file)` takes Exo proc list, path to the C and the header file, and C and the header file names. It compiles Exo procs into C files.
+
+#### Procedure object
+Introspection operations
+- `name()` returns a procedure name
+- `check_effects()` forces Exo to run the effect check on this procedure
+- `show_effects()` prints the effects of the procedure
+- `show_effect(stmt)` prints the effect of the stmt in the procedure
+- `is_instr()` returns true if the procedure is `@instr`
+- `get_instr()` returns the instruction string
+- `get_ast()` returns QAST, which is the introspection AST representation
+
+Execution / interpretation operations
+- `compile_c(directory, filename)` compiles this procedure into C and stores in filename in directory
+- `interpret(**args)` interprets this procedure
+
+Scheduling operations
+- `simplify()` Simplify the code in the procedure body. Tries to reduce expressions
+        to constants and eliminate dead branches and loops. Uses branch
+        conditions to simplify expressions inside the branches.
+- `rename(new_name)` Rename this procedure to new\_name
+- `make_instr(instr_string)` makes this procedure to instruction procedure with `instr_string`
+- `partial_eval(*args, **kwargs)` specializes this procedure to the arguments.
+- `set_precision(name, type)` sets the precision type of `name` to `type`
+- `set_window(name, is_window)` if `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type
+- `set_memory(name, mem_type)` sets a buffer `name`'s memory type to `mem_type`
+- 
+
 
 ### Documentation for examples
 

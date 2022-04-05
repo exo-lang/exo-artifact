@@ -68,6 +68,7 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 |`.lift_alloc(alloc, n_lifts=1, keep_dims=False)` | Lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope. When lifting the allocation out of the for loop, it will expand its dimension to the loop bound if `keep_dims` is True. |
 
 **Loop related operations**
+| --- | --- |
 |`.split(loop, split_const, iter_vars, tail='guard', perfect=False)`| Splits the loop of `loop` into an outer and an inner loop. Inner loop bound is `split_const` and outer and inner loop names are specified by a list of strings `iter_vars`. If `perfect` is True, it will not introduce a tail case. `tail` specifies the tail strategies, where the options are `guard`, `cut`, and `cut_and_guard`. |
 |`.fuse_loop(loop1, loop2)`| Fuses two subsequent loops with the same iteration variables. |
 |`.partition_loop(loop, num)`| Partitions the loop into two loops, one with `0` to `num` bound and the other with `num` to `iter`'s bound. `iter` loop bound need to be a constant.|

@@ -147,7 +147,7 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                 C[i, j] = C_reg
 ```
 
-
+Please uncomment the code in the second block. You will see that the `j` loop is `split` into two loops `jo` and `ji`, and loops are reordered so that the `k` loop becomes outermost.
 ```
 Second block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
@@ -263,8 +263,26 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                 C_reg[k + 0, i + 0, jo + 0, 0:8])
 ```
 
+Here is the potential modification to this code that you might want to try.
+- Modify the original algorithm so that the `k` loop becomes outermost. Adjust the scheduling operations so that the resulting code will be the same as the output of the sixth block.
 
 ### Compiling
 
+Finally, your code can be compiled and run on your machine, if you have AVX2 instructions.
+Please uncomment the Seventh block and run the script.
+It will compile the original procedure `rank_k_reduce_6x16` as `orig_matmul`, and the scheduled procedure `avx` as `avx2_matmul`.
 
+Now, we provided a main function to call those procedure and time them. Please run
+```
+$ gcc -march=native main.c avx2_matmul.c orig_matmul.c
+$ ./a.out
+```
+
+It should generate something like:
+```
+Time taken for original matmul: 0 seconds 490 milliseconds
+Time taken for scheduled matmul: 0 seconds 236 milliseconds
+```
+
+Even for this small example, we can see the power of AVX instrutions.
 

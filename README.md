@@ -42,52 +42,53 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 
 #### Procedure object methods
 **Introspection operations**
-- `name()` returns the procedure name.
-- `check_effects()` forces Exo to run the effect check on the procedure.
-- `show_effects()` prints the effects of the procedure.
-- `show_effect(stmt)` prints the effect of the `stmt` in the procedure.
-- `is_instr()` returns `true` if the procedure has a hardware instruction string.
-- `get_instr()` returns the hardware instruction string.
-- `get_ast()` returns `QAST`, which is an introspection AST representation.
+- `.name()` returns the procedure name.
+- `.check_effects()` forces Exo to run the effect check on the procedure.
+- `.show_effects()` prints the effects of the procedure.
+- `.show_effect(stmt)` prints the effect of the `stmt` in the procedure.
+- `.is_instr()` returns `true` if the procedure has a hardware instruction string.
+- `.get_instr()` returns the hardware instruction string.
+- `.get_ast()` returns `QAST`, which is an introspection AST representation.
 
 **Execution / interpretation operations**
-- `compile_c(directory, filename)` compiles the procedure into C and stores in `filename` in the `directory`.
-- `interpret(**args)` runs Exo interpreter on the procedure.
+- `.compile_c(directory, filename)` compiles the procedure into C and stores in `filename` in the `directory`.
+- `.interpret(**args)` runs Exo interpreter on the procedure.
 
 #### Scheduling operations on Procedure objects
 **Buffer related operations**
-- `data_reuse(self, buf1, buf2)` reuses a buffer `buf1` in the use site of `buf2` and removes the allocation of `buf2`.
-- `inline_window(self, win_stmt)` removes the window statement `win_stmt`, which is an alias to the window, and inline the windowing in its use site.
-- `expand_dim(self, stmt, alloc_dim, indexing)` expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.
-- `bind_expr(self, new_name, expr)` binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.
-- `stage_mem(self, win_expr, new_name, stmt_start, stmt_end=None)` stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.
-- `stage_assn(self, new_name, stmt)` binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.
-- `rearrange_dim(self, alloc, dimensions)` takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.
-- `lift_alloc_simple(self, alloc, n_lifts=1)` lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope.
-- `lift_alloc(self, alloc, n_lifts=1, mode='row', size=None, keep_dims=False)`
+| Operation | Description |
+| --- | --- |
+|`.data_reuse(buf1, buf2)` | Reuses a buffer `buf1` in the use site of `buf2` and removes the allocation of `buf2`.|
+|`.inline_window(win_stmt)` | Removes the window statement `win_stmt`, which is an alias to the window, and inline the windowing in its use site.|
+- `.expand_dim(stmt, alloc_dim, indexing)` expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.
+- `.bind_expr(new_name, expr)` binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.
+- `.stage_mem(win_expr, new_name, stmt_start, stmt_end=None)` stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.
+- `.stage_assn(new_name, stmt)` binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.
+- `.rearrange_dim(alloc, dimensions)` takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.
+- `.lift_alloc(alloc, n_lifts=1, mode='row', size=None, keep_dims=False)` lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope.
 
 **Loop related operations**
-- `split(self, split_var, split_const, out_vars, tail='guard', perfect=False)`
-- `fuse_loop(self, loop1, loop2)`
-- `add_loop(self, stmt, var, hi)`
-- `partition_loop(self, var_pattern, num)`
-- `reorder(self, out_var, in_var)`
-- `unroll(self, unroll_var)`
-- `fission_after_simple(self, stmt_pattern, n_lifts=1)`
-- `fission_after(self, stmt_pattern, n_lifts=1)`
-- `remove_loop(self, loop_pattern)`
+- `.split(split_var, split_const, out_vars, tail='guard', perfect=False)`
+- `.fuse_loop(loop1, loop2)`
+- `.add_loop(stmt, var, hi)`
+- `.partition_loop(var_pattern, num)`
+- `.reorder(out_var, in_var)`
+- `.unroll(unroll_var)`
+- `.fission_after_simple(stmt_pattern, n_lifts=1)`
+- `.fission_after(stmt_pattern, n_lifts=1)`
+- `.remove_loop(loop_pattern)`
 
 **Config related operations**
-- `bind_config(var, config, field)` sets 
-- `configwrite_root(self, config, field, var_pattern)`
-- `configwrite_after(self, stmt_pattern, config, field, var_pattern)`
-- `delete_config(self, stmt_pat)`
+- `.bind_config(var, config, field)` sets 
+- `.configwrite_root(config, field, var_pattern)`
+- `.configwrite_after(stmt_pattern, config, field, var_pattern)`
+- `.delete_config(stmt_pat)`
 
 **Branch related operations**
-- `add_unsafe_guard(self, stmt_pat, var_pattern)`
-- `add_assertion(self, assertion)`
-- `add_guard(self, stmt_pat, iter_pat, value)`
-- `bound_and_guard(self, loop)`
+- `.add_unsafe_guard(stmt_pat, var_pattern)`
+- `.add_assertion(assertion)`
+- `.add_guard(stmt_pat, iter_pat, value)`
+- `.bound_and_guard(loop)`
 ```
         Replace
           for i in par(0, e): ...
@@ -97,33 +98,33 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
         where c is the tightest constant bound on e
         This currently only works when e is of the form x % n
 ```
-- `fuse_if(self, if1, if2)`
-- `merge_guard(self, stmt1, stmt2)`
-- `lift_if(self, if_pattern, n_lifts=1)`
-- `assert_if(self, if_pattern, cond)`
+- `.fuse_if(if1, if2)`
+- `.merge_guard(stmt1, stmt2)`
+- `.lift_if(if_pattern, n_lifts=1)`
+- `.assert_if(if_pattern, cond)`
 
 **Other scheduling operations**
-- `specialize(self, stmt_pat: str, conds: Union[str, List[str]])`
-- `insert_pass(self, pat: str)`
-- `delete_pass(self)`
-- `reorder_before(self, pat)`
-- `reorder_stmts(self, first_pat, second_pat)`
-- `replace(self, subproc, pattern, quiet=False)`
-- `replace_all(self, subproc)`
-- `inline(self, call_site_pattern)`
-- `is_eq(self, proc: 'Procedure')`
-- `call_eqv(self, eqv_proc: 'Procedure', call_site_pattern)`
-- `repeat(self, directive, *args)`
-- `extract_method(self, name, stmt_pattern)`
-- `simplify()` Simplify the code in the procedure body. Tries to reduce expressions
+- `.specialize(stmt_pat: str, conds: Union[str, List[str]])`
+- `.insert_pass(pat: str)`
+- `.delete_pass()`
+- `.reorder_before(pat)`
+- `.reorder_stmts(first_pat, second_pat)`
+- `.replace(subproc, pattern, quiet=False)`
+- `.replace_all(subproc)`
+- `.inline(call_site_pattern)`
+- `.is_eq(proc: 'Procedure')`
+- `.call_eqv(eqv_proc: 'Procedure', call_site_pattern)`
+- `.repeat(directive, *args)`
+- `.extract_method(name, stmt_pattern)`
+- `.simplify()` Simplify the code in the procedure body. Tries to reduce expressions
         to constants and eliminate dead branches and loops. Uses branch
         conditions to simplify expressions inside the branches.
-- `rename(new_name)` Rename this procedure to `new\_name`
-- `make_instr(instr_string)` makes this procedure to instruction procedure with `instr_string`
-- `partial_eval(*args, **kwargs)` specializes this procedure to the arguments.
-- `set_precision(name, type)` sets the precision type of `name` to `type`
-- `set_window(name, is_window)` if `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type
-- `set_memory(name, mem_type)` sets a buffer `name`'s memory type to `mem_type`
+- `.rename(new_name)` Rename this procedure to `new\_name`
+- `.make_instr(instr_string)` makes this procedure to instruction procedure with `instr_string`
+- `.partial_eval(*args, **kwargs)` specializes this procedure to the arguments.
+- `.set_precision(name, type)` sets the precision type of `name` to `type`
+- `.set_window(name, is_window)` if `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type
+- `.set_memory(name, mem_type)` sets a buffer `name`'s memory type to `mem_type`
 
 
 ### Documentation for examples

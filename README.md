@@ -110,45 +110,161 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 |`.set_memory(name, mem_type)` | Sets a buffer `name`'s memory type to `mem_type`. |
 
 
-### Documentation for examples
-
-#### Gemmini
-
-We provided a documentation for Gemmini code used
-The code is the same as `exo/tests/gemmini/matmul/test_gemmini_matmul_ae.py` and `exo/tests/gemmini/matmul/test_gemmini_matmul_ae.py`
-
-```
-$ python examples/test_gemmini_matmul_ae.py -s
-$ python examples/test_gemmini_conv_ae.py -s
-```
-
-Both tests start from a simple algorithm and schedule the code into a complex one.
-Although it is not executed in this artifact evaluation, if you happen to have a GEMMINI
-environment set up, the script will generate C code and compile it with GEMMINI's custom
-gcc. It then runs a sanity-check on the result against the original algorithm.
-
-The commands above print out the original and the scheduled Exo code to the terminal and
-produce C code in `exo/tests/gemmini/gemmini_build/`. You can look at the generated C
-code like so:
-
-```
-$ pwd
-/app/exo/tests/gemmini
-$ cat gemmini_build/matmul_ae_lib.c
-$ cat gemmini_build/conv_ae_lib.c
-```
-
-The `*_lib.c` files are generated C sources and the `*_lib.h` files are generated header
-files.
-
-#### x86
-
-Please look at `example/simple_kernel.py` in this repository. We will defer the explanation of this
-example to the next section.
-
 ## 3. Able to make changes
 
+We provided a sample user code in `examples/x86_matmul.py`. `rank_k_reduce_6x16` is a microkernel for AVX2 SGEMM application.
+We chose this application because it is relatively simple but contains all the important scheduling operators.
 
+```
+$ python x86_matmul.py
+```
+
+### Schedule walk-through
+
+We will try to walk through the scheduling transforms step by step. Without any modification, you will see a simple tri-loop print saying "Original algorithm".
+This is the original, simple algorithm that we will start with.
+```
+Original algorithm:
+def rank_k_reduce_6x16(K: size, C: f32[6, 16] @ DRAM, A: f32[6, K] @ DRAM,
+                       B: f32[K, 16] @ DRAM):
+    for i in seq(0, 6):
+        for j in seq(0, 16):
+            for k in seq(0, K):
+                C[i, j] += A[i, k] * B[k, j]
+```
+
+Next, please uncomment the code in the first block. Now, you will see that `C` is staged to a buffer called `C_reg`, which resides in AVX2 register denoted by `@ AVX2`.
+```
+First block:
+def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
+                                 A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
+    for i in seq(0, 6):
+        for j in seq(0, 16):
+            for k in seq(0, K):
+                C_reg: R @ AVX2
+                C_reg = C[i, j]
+                C_reg += A[i, k] * B[k, j]
+                C[i, j] = C_reg
+```
+
+
+```
+Second block:
+def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
+                                 A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C_reg: R @ AVX2
+                    C_reg = C[i, 8 * jo + ji]
+                    C_reg += A[i, k] * B[k, 8 * jo + ji]
+                    C[i, 8 * jo + ji] = C_reg
+```
+
+```
+Third block:
+def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
+                                 A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
+    C_reg: R[K + 1, 6, 2, 8] @ AVX2
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C_reg[k, i, jo, ji] += A[i, k] * B[k, 8 * jo + ji]
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
+```
+
+```
+Forth block:
+def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
+                                 A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
+    C_reg: R[K + 1, 6, 2, 8] @ AVX2
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                a_vec: R[8] @ AVX2
+                for ji in par(0, 8):
+                    a_vec[ji] = A[i, k]
+                for ji in par(0, 8):
+                    C_reg[k, i, jo, ji] += a_vec[ji] * B[k, 8 * jo + ji]
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
+```
+
+```
+Fifth block:
+def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
+                                 A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
+    C_reg: R[K + 1, 6, 2, 8] @ AVX2
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                a_vec: R[8] @ AVX2
+                for ji in par(0, 8):
+                    a_vec[ji] = A[i, k]
+                b_vec: R[8] @ AVX2
+                for ji in par(0, 8):
+                    b_vec[ji] = B[k, 8 * jo + ji]
+                for ji in par(0, 8):
+                    C_reg[k, i, jo, ji] += a_vec[ji] * b_vec[ji]
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                for ji in par(0, 8):
+                    C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
+```
+
+
+```
+Sixth block:
+def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
+                                 A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
+    C_reg: R[K + 1, 6, 2, 8] @ AVX2
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                mm256_loadu_ps(C_reg[k + 0, i + 0, jo + 0, 0:8],
+                               C[i + 0, 8 * jo + 0:8 * jo + 8])
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                a_vec: R[8] @ AVX2
+                mm256_broadcast_ss(a_vec, A[i + 0:i + 1, k + 0])
+                b_vec: R[8] @ AVX2
+                mm256_loadu_ps(b_vec[0:8], B[k + 0, 8 * jo + 0:8 * jo + 8])
+                mm256_fmadd_ps(C_reg[k + 0, i + 0, jo + 0, 0:8], a_vec, b_vec)
+    for k in par(0, K):
+        for i in par(0, 6):
+            for jo in par(0, 2):
+                mm256_storeu_ps(C[i + 0, 8 * jo + 0:8 * jo + 8],
+                                C_reg[k + 0, i + 0, jo + 0, 0:8])
+```
+
+
+### Compiling
 
 
 

@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import itertools
-
-import numpy as np
-import pytest
-
 from exo import proc
 from exo.platforms.x86 import *
+
 
 # Algorithm definition
 @proc
@@ -20,6 +16,7 @@ def rank_k_reduce_6x16(
         for j in seq(0, 16):
             for k in seq(0, K):
                 C[i, j] += A[i, k] * B[k, j]
+
 
 print("Original algorithm:")
 print(rank_k_reduce_6x16)
@@ -58,13 +55,13 @@ print("Third block:")
 print(avx)
 """
 
-# Forth block
+# Fourth block
 """
 avx = avx.bind_expr('a_vec', 'A[i, k]')
 avx = avx.set_memory('a_vec', AVX2)
 avx = avx.lift_alloc('a_vec:_', keep_dims=True)
 avx = avx.fission_after('a_vec[_] = _')
-print("Forth block:")
+print("Fourth block:")
 print(avx)
 """
 
@@ -96,4 +93,3 @@ print(avx)
 avx.compile_c(".", "avx2_matmul")
 rank_k_reduce_6x16.compile_c(".", "orig_matmul")
 """
-

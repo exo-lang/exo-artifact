@@ -2,3 +2,6 @@
 *.json
 build/
 *.png
+a.out
+avx2_matmul.*
+orig_matmul.*

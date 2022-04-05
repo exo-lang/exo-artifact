@@ -73,16 +73,16 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 |`.split(loop, split_const, iter_vars, tail='guard', perfect=False)`| Splits the loop of `loop` into an outer and an inner loop. Inner loop bound is `split_const` and outer and inner loop names are specified by a list of strings `iter_vars`. If `perfect` is True, it will not introduce a tail case. `tail` specifies the tail strategies, where the options are `guard`, `cut`, and `cut_and_guard`. |
 |`.fuse_loop(loop1, loop2)`| Fuses two subsequent loops with the same iteration variables. |
 |`.partition_loop(loop, num)`| Partitions the loop into two loops, one with `0` to `num` bound and the other with `num` to `iter`'s bound. `iter` loop bound need to be a constant.|
-|`.reorder(loop1, loop2)`| Reorder two nested loops. |
-|`.unroll(loop)`| Unroll the loop of `unroll_var`.|
-|`.fission_after(stmt, n_lifts=1)`| Fission the loop into two loops around the `stmt`. |
-|`.remove_loop(loop)`| Unroll the loop.|
+|`.reorder(loop1, loop2)`| Reorder two nested loops. `loop2` should be nested directly inside the `loop1`. `loop1` will be nested inside `loop2` after this operation. |
+|`.unroll(loop)`| Unroll the loop. The loop needs to be constant bound.|
+|`.fission_after(stmt, n_lifts=1)`| Fission the `n_lifts` number of loops around the `stmt`. The fissioned loops around the `stmt` need to be directly nested with each other and the statements before and after the `stmt` should not have an allocation dependency. |
+|`.remove_loop(loop)`| Remove the loop if all the statements in the loop is idempotent.|
 
 **Config related operations**
-- `.bind_config(var, config, field)` sets 
-- `.configwrite_root(config, field, var_pattern)`
-- `.configwrite_after(stmt_pattern, config, field, var_pattern)`
-- `.delete_config(stmt_pat)`
+- `.bind_config(expr, config, field)` binds the `expr` with `config`.`field`. 
+- `.configwrite_root(config, field, expr)` inserts the config statement `config`.`field` = `expr` in the beginning of the procedure.
+- `.configwrite_after(stmt, config, field, expr)`inserts the config statement `config`.`field` = `expr` after `stmt`.
+- `.delete_config(stmt)` deletes the configuration statement.
 
 **Branch related operations**
 - `.add_unsafe_guard(stmt_pat, var_pattern)`

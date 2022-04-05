@@ -56,58 +56,62 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 
 #### Scheduling operations on Procedure objects
 **Buffer related operations**
-| Operation | Description |
-| --- | --- |
-|`.data_reuse(buf1, buf2)` | Reuses a buffer `buf1` in the use site of `buf2` and removes the allocation of `buf2`.|
-|`.inline_window(win_stmt)` | Removes the window statement `win_stmt`, which is an alias to the window, and inline the windowing in its use site.|
-|`.expand_dim(stmt, alloc_dim, indexing)` | Expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.|
-|`.bind_expr(new_name, expr)` | Binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.|
-|`.stage_mem(win_expr, new_name, stmt_start, stmt_end=None)` | Stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.|
-|`.stage_assn(new_name, stmt)` | Binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.|
-|`.rearrange_dim(alloc, dimensions)` | Takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.|
-|`.lift_alloc(alloc, n_lifts=1, keep_dims=False)` | Lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope. When lifting the allocation out of the for loop, it will expand its dimension to the loop bound if `keep_dims` is True. |
+
+| Operation                                                   | Description                                                                                                                                                                                                                                                                     |
+|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `.data_reuse(buf1, buf2)`                                   | Reuses a buffer `buf1` in the use site of `buf2` and removes the allocation of `buf2`.                                                                                                                                                                                          |
+| `.inline_window(win_stmt)`                                  | Removes the window statement `win_stmt`, which is an alias to the window, and inline the windowing in its use site.                                                                                                                                                             |
+| `.expand_dim(stmt, alloc_dim, indexing)`                    | Expands the dimension of the allocation statement `stmt` with dimension `alloc_dim` of indexing `indexing`.                                                                                                                                                                     |
+| `.bind_expr(new_name, expr)`                                | Binds the right hand side expression `expr` with the `new_name`, allocating a new buffer for the `new_name`.                                                                                                                                                                    |
+| `.stage_mem(win_expr, new_name, stmt_start, stmt_end=None)` | Stages the buffer `win_expr` to the new window expression `new_name` in statement block (`stmt_start` to `stmt_end`), and add an initilization loop and a writeback loop.                                                                                                       |
+| `.stage_assn(new_name, stmt)`                               | Binds the left hand side expression of `stmt` with the `new_name`, allocating a new buffer for the `new_name`.                                                                                                                                                                  |
+| `.rearrange_dim(alloc, dimensions)`                         | Takes an allocation statement and a list of integer to map the dimension. It rearranges the dimension of `alloc` in `dimension` order. E.g., if `alloc` was `foo[N,M,K]` and the `dimension` was `[2,0,1]`, it will be `foo[K,N,M]` after this operation.                       |
+| `.lift_alloc(alloc, n_lifts=1, keep_dims=False)`            | Lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope. When lifting the allocation out of the for loop, it will expand its dimension to the loop bound if `keep_dims` is True. |
 
 **Loop related operations**
-| Operation | Description |
-| --- | --- |
-|`.split(loop, split_const, iter_vars, tail='guard', perfect=False)`| Splits the loop of `loop` into an outer and an inner loop. Inner loop bound is `split_const` and outer and inner loop names are specified by a list of strings `iter_vars`. If `perfect` is True, it will not introduce a tail case. `tail` specifies the tail strategies, where the options are `guard`, `cut`, and `cut_and_guard`. |
-|`.fuse_loop(loop1, loop2)`| Fuses two subsequent loops with the same iteration variables. |
-|`.partition_loop(loop, num)`| Partitions the loop into two loops, one with `0` to `num` bound and the other with `num` to `iter`'s bound. `iter` loop bound need to be a constant.|
-|`.reorder(loop1, loop2)`| Reorder two nested loops. `loop2` should be nested directly inside the `loop1`. `loop1` will be nested inside `loop2` after this operation. |
-|`.unroll(loop)`| Unroll the loop. The loop needs to be constant bound.|
-|`.fission_after(stmt, n_lifts=1)`| Fission the `n_lifts` number of loops around the `stmt`. The fissioned loops around the `stmt` need to be directly nested with each other and the statements before and after the `stmt` should not have an allocation dependency. |
-|`.remove_loop(loop)`| Remove the loop if all the statements in the loop is idempotent.|
+
+| Operation                                                           | Description                                                                                                                                                                                                                                                                                                                           |
+|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `.split(loop, split_const, iter_vars, tail='guard', perfect=False)` | Splits the loop of `loop` into an outer and an inner loop. Inner loop bound is `split_const` and outer and inner loop names are specified by a list of strings `iter_vars`. If `perfect` is True, it will not introduce a tail case. `tail` specifies the tail strategies, where the options are `guard`, `cut`, and `cut_and_guard`. |
+| `.fuse_loop(loop1, loop2)`                                          | Fuses two subsequent loops with the same iteration variables.                                                                                                                                                                                                                                                                         |
+| `.partition_loop(loop, num)`                                        | Partitions the loop into two loops, one with `0` to `num` bound and the other with `num` to `iter`'s bound. `iter` loop bound need to be a constant.                                                                                                                                                                                  |
+| `.reorder(loop1, loop2)`                                            | Reorder two nested loops. `loop2` should be nested directly inside the `loop1`. `loop1` will be nested inside `loop2` after this operation.                                                                                                                                                                                           |
+| `.unroll(loop)`                                                     | Unroll the loop. The loop needs to be constant bound.                                                                                                                                                                                                                                                                                 |
+| `.fission_after(stmt, n_lifts=1)`                                   | Fission the `n_lifts` number of loops around the `stmt`. The fissioned loops around the `stmt` need to be directly nested with each other and the statements before and after the `stmt` should not have an allocation dependency.                                                                                                    |
+| `.remove_loop(loop)`                                                | Remove the loop if all the statements in the loop is idempotent.                                                                                                                                                                                                                                                                      |
 
 **Config related operations**
-| Operation | Description |
-| --- | --- |
-|`.bind_config(expr, config, field)` | Binds the right hand side `expr` with `config`.`field`. It will replace the use site of `expr` with `config`.`field` and introduces a config statement of `config`.`field` = `expr`. |
-|`.configwrite_root(config, field, expr)` | Inserts the config statement `config`.`field` = `expr` in the beginning of the procedure. |
-|`.configwrite_after(stmt, config, field, expr)` | Inserts the config statement `config`.`field` = `expr` after `stmt`. |
-|`.delete_config(stmt)` | Deletes the configuration statement. |
+
+| Operation                                       | Description                                                                                                                                                                          |
+|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `.bind_config(expr, config, field)`             | Binds the right hand side `expr` with `config`.`field`. It will replace the use site of `expr` with `config`.`field` and introduces a config statement of `config`.`field` = `expr`. |
+| `.configwrite_root(config, field, expr)`        | Inserts the config statement `config`.`field` = `expr` in the beginning of the procedure.                                                                                            |
+| `.configwrite_after(stmt, config, field, expr)` | Inserts the config statement `config`.`field` = `expr` after `stmt`.                                                                                                                 |
+| `.delete_config(stmt)`                          | Deletes the configuration statement.                                                                                                                                                 |
 
 **Other scheduling operations**
-| Operation | Description |
-| --- | --- |
-|`.add_assertion(assertion)` | Adds assertion expression of `assertion` in the procedure. |
-|`.lift_if(if, n_lifts=1)` | Lifts the if statement `if` out the `n_lifts` number of scopes. This is similar to `reorder()` operation, but for if statements.|
-|`.assert_if(if, bool)` | Asserts that the `if` condition is always True or False. |
-|`.delete_pass()` | Deletes the `Pass` statement in the procedure. |
-|`.reorder_stmts(stmt1, stmt2)` | Reorder the two subsequent statements `stmt1` and `stmt2`. After this operation, the order will be `stmt2` `stmt1`. |
-|`.reorder_before(stmt)` | Reorder the statement `stmt` with a statement above. This is a short hand for `reorder_stmts()`. |
-|`.replace(subproc, stmt)` | Replace the statement with the call to `subproc`. This operation is one of our contributions and is explained heavily in the paper. |
-|`.replace_all(subproc)` | Replace the statements with the call to `subproc` wherever it can. |
-|`.inline(call_site)` | Inline the function call. |
-|`.is_eq(another_proc)` | Returns True if `another_proc` is equivalent to the procedure. | 
-|`.call_eqv(eqv_proc, call_site)` | Replace the function call statement of `call_site` with a call to equivalent procedure `eqv_proc`. |
-|`.repeat(directive, *args)` | Repeat the directive as much as possible. |
-|`.simplify()` | Simplify the code in the procedure body. Tries to reduce expressions to constants and eliminate dead branches and loops. Uses branch conditions to simplify expressions inside the branches. |
-|`.rename(new_name)` | Rename this procedure to `new_name`. |
-|`.make_instr(instr_string)` | Makes this procedure to instruction procedure with `instr_string`. |
-|`.partial_eval(*args, **kwargs)` | Specializes this procedure to the arguments. |
-|`.set_precision(name, type)` | Sets the precision type of `name` to `type`. |
-|`.set_window(name, is_window)` | If `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type. |
-|`.set_memory(name, mem_type)` | Sets a buffer `name`'s memory type to `mem_type`. |
+
+| Operation                        | Description                                                                                                                                                                                  |
+|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `.add_assertion(assertion)`      | Adds assertion expression of `assertion` in the procedure.                                                                                                                                   |
+| `.lift_if(if, n_lifts=1)`        | Lifts the if statement `if` out the `n_lifts` number of scopes. This is similar to `reorder()` operation, but for if statements.                                                             |
+| `.assert_if(if, bool)`           | Asserts that the `if` condition is always True or False.                                                                                                                                     |
+| `.delete_pass()`                 | Deletes the `Pass` statement in the procedure.                                                                                                                                               |
+| `.reorder_stmts(stmt1, stmt2)`   | Reorder the two subsequent statements `stmt1` and `stmt2`. After this operation, the order will be `stmt2` `stmt1`.                                                                          |
+| `.reorder_before(stmt)`          | Reorder the statement `stmt` with a statement above. This is a short hand for `reorder_stmts()`.                                                                                             |
+| `.replace(subproc, stmt)`        | Replace the statement with the call to `subproc`. This operation is one of our contributions and is explained heavily in the paper.                                                          |
+| `.replace_all(subproc)`          | Replace the statements with the call to `subproc` wherever it can.                                                                                                                           |
+| `.inline(call_site)`             | Inline the function call.                                                                                                                                                                    |
+| `.is_eq(another_proc)`           | Returns True if `another_proc` is equivalent to the procedure.                                                                                                                               | 
+| `.call_eqv(eqv_proc, call_site)` | Replace the function call statement of `call_site` with a call to equivalent procedure `eqv_proc`.                                                                                           |
+| `.repeat(directive, *args)`      | Repeat the directive as much as possible.                                                                                                                                                    |
+| `.simplify()`                    | Simplify the code in the procedure body. Tries to reduce expressions to constants and eliminate dead branches and loops. Uses branch conditions to simplify expressions inside the branches. |
+| `.rename(new_name)`              | Rename this procedure to `new_name`.                                                                                                                                                         |
+| `.make_instr(instr_string)`      | Makes this procedure to instruction procedure with `instr_string`.                                                                                                                           |
+| `.partial_eval(*args, **kwargs)` | Specializes this procedure to the arguments.                                                                                                                                                 |
+| `.set_precision(name, type)`     | Sets the precision type of `name` to `type`.                                                                                                                                                 |
+| `.set_window(name, is_window)`   | If `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type.                                                                                                  |
+| `.set_memory(name, mem_type)`    | Sets a buffer `name`'s memory type to `mem_type`.                                                                                                                                            |
 
 
 ## 3. Able to make changes
@@ -125,74 +129,74 @@ $ python x86_matmul.py
 
 We will try to walk through the scheduling transforms step by step. Without any modification, `python x86_matmul.py` will print the original, simple algorithm that we will start with.
 ```python
-Original algorithm:
+# Original algorithm:
 def rank_k_reduce_6x16(K: size, C: f32[6, 16] @ DRAM, A: f32[6, K] @ DRAM,
                        B: f32[K, 16] @ DRAM):
-    for i in seq(0, 6):
-        for j in seq(0, 16):
-            for k in seq(0, K):
-                C[i, j] += A[i, k] * B[k, j]
+   for i in seq(0, 6):
+      for j in seq(0, 16):
+         for k in seq(0, K):
+            C[i, j] += A[i, k] * B[k, j]
 ```
 
 Next, please uncomment the code in the first block.
 Now, you will see that `stage_assn()` operator stages `C` to a buffer called `C_reg`.
 `set_memory()` sets `C_reg`'s memory to AVX2 to use it as a AVX vector, which is denoted by `@ AVX2`.
 ```python
-First block:
+# First block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
-    for i in seq(0, 6):
-        for j in seq(0, 16):
-            for k in seq(0, K):
-                C_reg: R @ AVX2
-                C_reg = C[i, j]
-                C_reg += A[i, k] * B[k, j]
-                C[i, j] = C_reg
+   for i in seq(0, 6):
+      for j in seq(0, 16):
+         for k in seq(0, K):
+            C_reg: R @ AVX2
+            C_reg = C[i, j]
+            C_reg += A[i, k] * B[k, j]
+            C[i, j] = C_reg
 ```
 
 Please uncomment the code in the second block. You will see that the `j` loop is `split()` into two loops `jo` and `ji`, and loops are `reorder()`ed so that the `k` loop becomes outermost.
 ```python
-Second block:
+# Second block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                for ji in par(0, 8):
-                    C_reg: R @ AVX2
-                    C_reg = C[i, 8 * jo + ji]
-                    C_reg += A[i, k] * B[k, 8 * jo + ji]
-                    C[i, 8 * jo + ji] = C_reg
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            for ji in par(0, 8):
+               C_reg: R @ AVX2
+               C_reg = C[i, 8 * jo + ji]
+               C_reg += A[i, k] * B[k, 8 * jo + ji]
+               C[i, 8 * jo + ji] = C_reg
 ```
 
 Please uncomment the code in the third block. Please notice that
 - The allocation of `C_reg` is lifted up by `lift_alloc()`
 - `C_reg` initialization, reduction, and write back are `fission()`ed into three separate blocks.
 ```python
-Third block:
+# Third block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
-    C_reg: R[K + 1, 6, 2, 8] @ AVX2
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                for ji in par(0, 8):
-                    C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                for ji in par(0, 8):
-                    C_reg[k, i, jo, ji] += A[i, k] * B[k, 8 * jo + ji]
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                for ji in par(0, 8):
-                    C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
+   C_reg: R[K + 1, 6, 2, 8] @ AVX2
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            for ji in par(0, 8):
+               C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            for ji in par(0, 8):
+               C_reg[k, i, jo, ji] += A[i, k] * B[k, 8 * jo + ji]
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            for ji in par(0, 8):
+               C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
 ```
 
-Please uncomment the code in the forth block. `A` is binded to 8 wide AVX2 vector register `a_vec` by `bind_expr()` and `set_memory()`.
+Please uncomment the code in the fourth block. `A` is bound to 8 wide AVX2 vector register `a_vec` by `bind_expr()` and `set_memory()`.
 ```python
-Forth block:
+# Fourth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
     C_reg: R[K + 1, 6, 2, 8] @ AVX2
@@ -218,31 +222,31 @@ def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
 
 Please uncomment the code in the fifth block. Same schedule for `A` is applied to `B`.
 ```python
-Fifth block:
+# Fifth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
-    C_reg: R[K + 1, 6, 2, 8] @ AVX2
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                for ji in par(0, 8):
-                    C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                a_vec: R[8] @ AVX2
-                for ji in par(0, 8):
-                    a_vec[ji] = A[i, k]
-                b_vec: R[8] @ AVX2
-                for ji in par(0, 8):
-                    b_vec[ji] = B[k, 8 * jo + ji]
-                for ji in par(0, 8):
-                    C_reg[k, i, jo, ji] += a_vec[ji] * b_vec[ji]
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                for ji in par(0, 8):
-                    C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
+   C_reg: R[K + 1, 6, 2, 8] @ AVX2
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            for ji in par(0, 8):
+               C_reg[k, i, jo, ji] = C[i, 8 * jo + ji]
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            a_vec: R[8] @ AVX2
+            for ji in par(0, 8):
+               a_vec[ji] = A[i, k]
+            b_vec: R[8] @ AVX2
+            for ji in par(0, 8):
+               b_vec[ji] = B[k, 8 * jo + ji]
+            for ji in par(0, 8):
+               C_reg[k, i, jo, ji] += a_vec[ji] * b_vec[ji]
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            for ji in par(0, 8):
+               C[i, 8 * jo + ji] = C_reg[k, i, jo, ji]
 ```
 
 Finally, please uncomment the sixth block.
@@ -251,28 +255,28 @@ AVX2 hardware instruction is defined in Exo [here](https://github.com/ChezJrk/ex
 Please look into the definition of `mm256_loadu_ps` for example, and notice that it is very simple yet has a similar syntax to the first `ji` loop in the fifth block.
 We will replace the statement with the call to AVX2 instruction procedures, and get the final schedule.
 ```python
-Sixth block:
+# Sixth block:
 def rank_k_reduce_6x16_scheduled(K: size, C: f32[6, 16] @ DRAM,
                                  A: f32[6, K] @ DRAM, B: f32[K, 16] @ DRAM):
-    C_reg: R[K + 1, 6, 2, 8] @ AVX2
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                mm256_loadu_ps(C_reg[k + 0, i + 0, jo + 0, 0:8],
-                               C[i + 0, 8 * jo + 0:8 * jo + 8])
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                a_vec: R[8] @ AVX2
-                mm256_broadcast_ss(a_vec, A[i + 0:i + 1, k + 0])
-                b_vec: R[8] @ AVX2
-                mm256_loadu_ps(b_vec[0:8], B[k + 0, 8 * jo + 0:8 * jo + 8])
-                mm256_fmadd_ps(C_reg[k + 0, i + 0, jo + 0, 0:8], a_vec, b_vec)
-    for k in par(0, K):
-        for i in par(0, 6):
-            for jo in par(0, 2):
-                mm256_storeu_ps(C[i + 0, 8 * jo + 0:8 * jo + 8],
-                                C_reg[k + 0, i + 0, jo + 0, 0:8])
+   C_reg: R[K + 1, 6, 2, 8] @ AVX2
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            mm256_loadu_ps(C_reg[k + 0, i + 0, jo + 0, 0:8],
+                           C[i + 0, 8 * jo + 0:8 * jo + 8])
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            a_vec: R[8] @ AVX2
+            mm256_broadcast_ss(a_vec, A[i + 0:i + 1, k + 0])
+            b_vec: R[8] @ AVX2
+            mm256_loadu_ps(b_vec[0:8], B[k + 0, 8 * jo + 0:8 * jo + 8])
+            mm256_fmadd_ps(C_reg[k + 0, i + 0, jo + 0, 0:8], a_vec, b_vec)
+   for k in par(0, K):
+      for i in par(0, 6):
+         for jo in par(0, 2):
+            mm256_storeu_ps(C[i + 0, 8 * jo + 0:8 * jo + 8],
+                            C_reg[k + 0, i + 0, jo + 0, 0:8])
 ```
 
 We would suggest reviewers to make the following modification to the code:
@@ -297,4 +301,3 @@ Time taken for scheduled matmul: 0 seconds 236 milliseconds
 ```
 
 Even for this small example, we can see the power of AVX2 instrutions.
-

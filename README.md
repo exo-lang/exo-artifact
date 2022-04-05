@@ -68,6 +68,7 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 |`.lift_alloc(alloc, n_lifts=1, keep_dims=False)` | Lifts the allocation statement `alloc` out of `n_lifts` number of scopes. If and For statements are the only statements in Exo which introduce a scope. When lifting the allocation out of the for loop, it will expand its dimension to the loop bound if `keep_dims` is True. |
 
 **Loop related operations**
+| Operation | Description |
 | --- | --- |
 |`.split(loop, split_const, iter_vars, tail='guard', perfect=False)`| Splits the loop of `loop` into an outer and an inner loop. Inner loop bound is `split_const` and outer and inner loop names are specified by a list of strings `iter_vars`. If `perfect` is True, it will not introduce a tail case. `tail` specifies the tail strategies, where the options are `guard`, `cut`, and `cut_and_guard`. |
 |`.fuse_loop(loop1, loop2)`| Fuses two subsequent loops with the same iteration variables. |
@@ -78,52 +79,35 @@ In [Exo repository](https://github.com/ChezJrk/exo), folders are structured as f
 |`.remove_loop(loop)`| Remove the loop if all the statements in the loop is idempotent.|
 
 **Config related operations**
-- `.bind_config(expr, config, field)` binds the `expr` with `config`.`field`. 
-- `.configwrite_root(config, field, expr)` inserts the config statement `config`.`field` = `expr` in the beginning of the procedure.
-- `.configwrite_after(stmt, config, field, expr)`inserts the config statement `config`.`field` = `expr` after `stmt`.
-- `.delete_config(stmt)` deletes the configuration statement.
-
-**Branch related operations**
-- `.add_unsafe_guard(stmt_pat, var_pattern)`
-- `.add_assertion(assertion)`
-- `.add_guard(stmt_pat, iter_pat, value)`
-- `.bound_and_guard(loop)`
-```
-        Replace
-          for i in par(0, e): ...
-        with
-          for i in par(0, c):
-            if i < e: ...
-        where c is the tightest constant bound on e
-        This currently only works when e is of the form x % n
-```
-- `.fuse_if(if1, if2)`
-- `.merge_guard(stmt1, stmt2)`
-- `.lift_if(if_pattern, n_lifts=1)`
-- `.assert_if(if_pattern, cond)`
+| Operation | Description |
+| --- | --- |
+|`.bind_config(expr, config, field)` | Binds the right hand side `expr` with `config`.`field`. It will replace the use site of `expr` with `config`.`field` and introduces a config statement of `config`.`field` = `expr`. |
+|`.configwrite_root(config, field, expr)` | Inserts the config statement `config`.`field` = `expr` in the beginning of the procedure. |
+|`.configwrite_after(stmt, config, field, expr)` | Inserts the config statement `config`.`field` = `expr` after `stmt`. |
+|`.delete_config(stmt)` | Deletes the configuration statement. |
 
 **Other scheduling operations**
-- `.specialize(stmt_pat: str, conds: Union[str, List[str]])`
-- `.insert_pass(pat: str)`
-- `.delete_pass()`
-- `.reorder_before(pat)`
-- `.reorder_stmts(first_pat, second_pat)`
-- `.replace(subproc, pattern, quiet=False)`
-- `.replace_all(subproc)`
-- `.inline(call_site_pattern)`
-- `.is_eq(proc: 'Procedure')`
-- `.call_eqv(eqv_proc: 'Procedure', call_site_pattern)`
-- `.repeat(directive, *args)`
-- `.extract_method(name, stmt_pattern)`
-- `.simplify()` Simplify the code in the procedure body. Tries to reduce expressions
-        to constants and eliminate dead branches and loops. Uses branch
-        conditions to simplify expressions inside the branches.
-- `.rename(new_name)` Rename this procedure to `new\_name`
-- `.make_instr(instr_string)` makes this procedure to instruction procedure with `instr_string`
-- `.partial_eval(*args, **kwargs)` specializes this procedure to the arguments.
-- `.set_precision(name, type)` sets the precision type of `name` to `type`
-- `.set_window(name, is_window)` if `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type
-- `.set_memory(name, mem_type)` sets a buffer `name`'s memory type to `mem_type`
+| Operation | Description |
+| --- | --- |
+|`.add_assertion(assertion)` | Adds assertion expression of `assertion` in the procedure. |
+|`.lift_if(if, n_lifts=1)` | Lifts the if statement `if` out the `n_lifts` number of scopes. This is similar to `reorder()` operation, but for if statements.|
+|`.assert_if(if, bool)` | Asserts that the `if` condition is always True or False. |
+|`.delete_pass()` | Deletes the `Pass` statement in the procedure. |
+|`.reorder_stmts(stmt1, stmt2)` | Reorder the two subsequent statements `stmt1` and `stmt2`. After this operation, the order will be `stmt2` `stmt1`. |
+|`.reorder_before(stmt)` | Reorder the statement `stmt` with a statement above. This is a short hand for `reorder_stmts()`. |
+|`.replace(subproc, stmt)` | Replace the statement with the call to `subproc`. This operation is one of our contributions and is explained heavily in the paper. |
+|`.replace_all(subproc)` | Replace the statements with the call to `subproc` wherever it can. |
+|`.inline(call_site)` | Inline the function call. |
+|`.is_eq(another_proc)` | Returns True if `another_proc` is equivalent to the procedure. | 
+|`.call_eqv(eqv_proc, call_site)` | Replace the function call statement of `call_site` with a call to equivalent procedure `eqv_proc`. |
+|`.repeat(directive, *args)` | Repeat the directive as much as possible. |
+|`.simplify()` | Simplify the code in the procedure body. Tries to reduce expressions to constants and eliminate dead branches and loops. Uses branch conditions to simplify expressions inside the branches. |
+|`.rename(new_name)` | Rename this procedure to `new_name`. |
+|`.make_instr(instr_string)` | Makes this procedure to instruction procedure with `instr_string`. |
+|`.partial_eval(*args, **kwargs)` | Specializes this procedure to the arguments. |
+|`.set_precision(name, type)` | Sets the precision type of `name` to `type`. |
+|`.set_window(name, is_window)` | If `is_window` is True, it sets the buffer `name` to window type, instead of a tensor type. |
+|`.set_memory(name, mem_type)` | Sets a buffer `name`'s memory type to `mem_type`. |
 
 
 ### Documentation for examples

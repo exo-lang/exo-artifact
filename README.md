@@ -326,23 +326,20 @@ We suggest reviewers attempt the following exercise:
 ### Compiling
 
 Finally, the code can be compiled and run on your machine if you have AVX2 instructions.
-Please uncomment the Seventh block and run the script. It will compile the original
-procedure `rank_k_reduce_6x16` as `orig_matmul`, and the scheduled procedure `avx`
-as `avx2_matmul`.
-
-We provided a main function in `main.c` to call those procedures and to time them.
-Please run
+We provided a main function in `main.c` to call these procedures and to time them.
+Please run `make` or compile manually:
 
 ```
-$ gcc -march=native main.c avx2_matmul.c orig_matmul.c
-$ ./a.out
+$ exocc -o . --stem avx2_matmul x86_matmul.py
+$ gcc -o avx2_matmul -march=native main.c avx2_matmul.c
 ```
 
 It should generate something like:
 
 ```
+$ ./avx2_matmul
 Time taken for original matmul: 0 seconds 490 milliseconds
 Time taken for scheduled matmul: 0 seconds 236 milliseconds
 ```
 
-Even for this small example, we can see the benefit of AVX2 instructions.
+Even on this small example, we can see the benefit of AVX2 instructions.

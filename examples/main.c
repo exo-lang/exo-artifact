@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "avx2_matmul.h"
-#include "orig_matmul.h"
 #include <time.h>
+
+#include "avx2_matmul.h"
 
 #define K 2048
 static float A[6 * K];
@@ -28,15 +28,13 @@ void initialize() {
 }
 
 int main() {
-  orig_matmul_Context *c1;
-  avx2_matmul_Context *c2;
   clock_t start, end;
   int msec;
 
   // Calling original matmul
   start = clock();
   for (int i=0; i<1000; i++)
-    rank_k_reduce_6x16(c1, K, C, A, B);
+    rank_k_reduce_6x16(NULL, K, C, A, B);
   end = clock();
 
   msec = (end-start) * 1000 / CLOCKS_PER_SEC;
@@ -45,7 +43,7 @@ int main() {
   // Calling scheduled matmul
   start = clock();
   for (int i=0; i<1000; i++)
-    rank_k_reduce_6x16_scheduled(c2, K, C, A, B);
+    rank_k_reduce_6x16_scheduled(NULL, K, C, A, B);
   end = clock();
 
   msec = (end-start) * 1000 / CLOCKS_PER_SEC;
